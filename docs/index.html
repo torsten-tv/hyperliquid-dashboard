@@ -37,19 +37,12 @@ tailwind.config = { theme: { extend: { fontFamily: { mono: ['ui-monospace','SFMo
 
   <div id="toast" class="hidden mb-3 text-xs rounded px-3 py-2"></div>
 
-  <!-- Smart-Money-Score (focus coins) -->
+  <!-- Smart-Money-Score (tracked coins) -->
   <div class="mb-4">
     <div class="text-xs text-slate-400 mb-1.5">
-      Smart-Money-Score <span class="text-slate-500">(notional-gewichtet · <span class="text-rose-400">−100 short</span> … <span class="text-emerald-400">+100 long</span>)</span>
-      · Fokus: BTC + Whitelist
+      Smart-Money-Score je Coin <span class="text-slate-500">(notional-gewichtet · <span class="text-rose-400">−100 short</span> … <span class="text-emerald-400">+100 long</span>)</span>
     </div>
-    <div id="focus" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-2"></div>
-  </div>
-
-  <!-- Consensus bar -->
-  <div class="mb-3">
-    <div class="text-xs text-slate-400 mb-1">Konsens aller Coins (≥2 Trader) je Coin · <span class="text-emerald-400">L</span>/<span class="text-rose-400">S</span> · Score</div>
-    <div id="consensus" class="flex flex-wrap gap-1.5"></div>
+    <div id="focus" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-9 gap-2"></div>
   </div>
 
   <!-- Table -->
@@ -74,7 +67,7 @@ tailwind.config = { theme: { extend: { fontFamily: { mono: ['ui-monospace','SFMo
   </div>
   <div class="mt-3 text-[11px] text-slate-500 leading-relaxed">
     Daten: Hyperliquid (öffentliche On-Chain-Positionen). „Veränderung" = im Fenster geöffnete (↑) / geschlossene (↓) Kontrakt-Menge je Coin.
-    Trader-Auswahl: Top 20 nach 30-Tage-PnL. Keine Anlageberatung.
+    Trader-Auswahl: aktive Accounts ≥$10M, Top 20 nach PnL bzw. ROI. Coins: BTC, ETH, ATOM, TAO, XRP, SOL, BNB, DOGE, AVAX. Keine Anlageberatung.
   </div>
 </div>
 
@@ -190,19 +183,6 @@ function render(){
   const ranked = rankedTraders();
   const aggs = computeAggregates(ranked);
   renderFocus(aggs);
-  // consensus
-  const cons=document.getElementById("consensus"); cons.innerHTML="";
-  let shown = aggs.filter(a=>a.long+a.short>=2);
-  if(!shown.length) shown = aggs;            // fallback if nothing shared
-  for(const a of shown){
-    const s=a.score||0, scol=scoreCol(s);
-    cons.insertAdjacentHTML("beforeend",
-      `<span class="px-2 py-1 rounded bg-slate-800/70 border border-slate-700 text-[11px]">
-        <b class="text-white">${a.coin}</b>
-        <span class="text-emerald-400">${a.long}L</span>/<span class="text-rose-400">${a.short}S</span>
-        <span class="text-${scol}-400 num">${s>0?"+":""}${s}</span>
-       </span>`);
-  }
   // rows
   const rows = flatRows(ranked);
   const tb=document.getElementById("rows"); tb.innerHTML="";

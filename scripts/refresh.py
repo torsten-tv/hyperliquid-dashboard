@@ -19,11 +19,14 @@ LEADERBOARD_URL = "https://stats-data.hyperliquid.xyz/Mainnet/leaderboard"
 INFO_URL = "https://api.hyperliquid.xyz/info"
 WINDOW = "month"          # rank traders by 30-day window
 TOP_N = 20
-CANDIDATES = 70           # scan this deep per metric; the biggest accounts are often
+CANDIDATES = 80           # scan this deep per metric; the biggest accounts are often
                           # flat, so we over-fetch (cheap clearinghouseState) and keep
                           # only active ones. Fills (expensive) run for selected only.
 MIN_ACCOUNT = 10_000_000  # only "whale" accounts (>=$10M) — see README
-FOCUS = ["BTC", "ETH", "ADA", "FET", "ATOM"]  # always-shown bias-gate coins
+# coin whitelist: only these perps are tracked; everything else is dropped
+COINS = ["BTC", "ETH", "ATOM", "TAO", "XRP", "SOL", "BNB", "DOGE", "AVAX"]
+COINSET = set(COINS)
+FOCUS = COINS             # score tiles = the whole tracked universe
 FILL_LOOKBACK_DAYS = 14   # how far back to pull fills (entry times + change windows)
 MAX_WORKERS = 5
 HEADERS = {"Content-Type": "application/json", "User-Agent": "hl-dashboard/1.0"}
@@ -89,7 +92,7 @@ def fetch_positions(row: dict) -> dict | None:
     for ap in state.get("assetPositions", []):
         p = ap["position"]
         szi = float(p["szi"])
-        if szi == 0:
+        if szi == 0 or p["coin"] not in COINSET:   # only whitelisted coins
             continue
         lev = p.get("leverage", {})
         positions.append({
@@ -143,7 +146,7 @@ def enrich_fills(t: dict, now_ms: int) -> dict:
         cutoff = now_ms - window_ms
         per: dict[str, dict] = {}
         for f in fills:
-            if f["time"] < cutoff or f["coin"].startswith("@"):
+            if f["time"] < cutoff or f["coin"] not in COINSET:
                 continue
             kind = classify_dir(f.get("dir", ""))
             if kind is None:

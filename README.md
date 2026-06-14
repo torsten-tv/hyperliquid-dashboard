@@ -6,9 +6,9 @@ Einstieg, Größe, Hebel, Liquidation, uPnL, Einstiegszeit —
 plus eine Spalte, die je Coin die in **1h / 4h** geöffnete (↑) bzw. geschlossene (↓)
 Kontrakt-Menge anzeigt.
 
-Oben: **Smart-Money-Score** (−100 short … +100 long, **notional-gewichtet**) für
-BTC + Whitelist (ETH, ADA, FET, ATOM) als Bias-Gate — plus eine Konsens-Leiste für
-alle übrigen Coins mit ≥2 Tradern.
+Es werden nur diese Coins verfolgt (Whitelist `COINS`): **BTC, ETH, ATOM, TAO, XRP,
+SOL, BNB, DOGE, AVAX** — alles andere wird verworfen. Oben je Coin ein
+**Smart-Money-Score** (−100 short … +100 long, **notional-gewichtet**) als Bias-Gate.
 
 **Live:** https://torsten-tv.github.io/hyperliquid-dashboard/
 
@@ -62,9 +62,9 @@ python -m http.server 8899 --directory docs   # http://localhost:8899
 
 ## Konfiguration
 
-In `scripts/refresh.py`: `WINDOW` (Ranking-Fenster), `TOP_N` (Anzahl Trader),
-`MIN_ACCOUNT` (Mindest-Accountwert, default $10M), `CANDIDATES` (Scan-Tiefe je Metrik),
-`FILL_LOOKBACK_DAYS`.
+In `scripts/refresh.py`: `COINS` (Coin-Whitelist), `WINDOW` (Ranking-Fenster),
+`TOP_N` (Anzahl Trader), `MIN_ACCOUNT` (Mindest-Accountwert, default $10M),
+`CANDIDATES` (Scan-Tiefe je Metrik), `FILL_LOOKBACK_DAYS`.
 
 Nur **aktive** Accounts (mit offener Position) kommen rein — die größten Accounts sind
 oft flat. Ablauf: Phase 1 holt günstig die Positionen von `CANDIDATES` Kandidaten je
