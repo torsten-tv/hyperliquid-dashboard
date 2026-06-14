@@ -19,6 +19,7 @@ LEADERBOARD_URL = "https://stats-data.hyperliquid.xyz/Mainnet/leaderboard"
 INFO_URL = "https://api.hyperliquid.xyz/info"
 WINDOW = "month"          # rank traders by 30-day PnL
 TOP_N = 20
+FOCUS = ["BTC", "ETH", "ADA", "FET", "ATOM"]  # always-shown bias-gate coins
 FILL_LOOKBACK_DAYS = 14   # how far back to pull fills (entry times + change windows)
 MAX_WORKERS = 8
 HEADERS = {"Content-Type": "application/json", "User-Agent": "hl-dashboard/1.0"}
@@ -155,20 +156,30 @@ def main() -> int:
         traders = [t for t in pool.map(lambda r: build_trader(r, now_ms), top)
                    if t is not None]
 
-    # aggregate long/short counts per coin across displayed positions
+    # aggregate per coin: counts + notional-weighted Smart-Money-Score (-100..+100)
     agg: dict[str, dict] = {}
     for t in traders:
         for p in t["positions"]:
-            a = agg.setdefault(p["coin"], {"coin": p["coin"], "long": 0, "short": 0})
+            a = agg.setdefault(p["coin"], {"coin": p["coin"], "long": 0, "short": 0,
+                                           "longNotional": 0.0, "shortNotional": 0.0})
             a[p["side"]] += 1
-    aggregates = sorted(agg.values(),
-                        key=lambda a: a["long"] + a["short"], reverse=True)
+            a["longNotional" if p["side"] == "long" else "shortNotional"] += p["notionalUsd"]
+    for a in agg.values():
+        tot = a["longNotional"] + a["shortNotional"]
+        a["totalNotional"] = tot
+        # +100 = all notional long, -100 = all short, 0 = balanced/none
+        a["score"] = round((a["longNotional"] - a["shortNotional"]) / tot * 100) if tot else 0
+    for coin in FOCUS:  # focus coins always present, even with no position
+        agg.setdefault(coin, {"coin": coin, "long": 0, "short": 0, "longNotional": 0.0,
+                              "shortNotional": 0.0, "totalNotional": 0.0, "score": 0})
+    aggregates = sorted(agg.values(), key=lambda a: a["totalNotional"], reverse=True)
 
     snapshot = {
         "generatedAt": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "generatedAtMs": now_ms,
         "window": WINDOW,
         "topN": TOP_N,
+        "focus": FOCUS,
         "traders": traders,
         "aggregates": aggregates,
     }

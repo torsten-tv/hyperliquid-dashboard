@@ -33,9 +33,18 @@ tailwind.config = { theme: { extend: { fontFamily: { mono: ['ui-monospace','SFMo
 
   <div id="toast" class="hidden mb-3 text-xs rounded px-3 py-2"></div>
 
+  <!-- Smart-Money-Score (focus coins) -->
+  <div class="mb-4">
+    <div class="text-xs text-slate-400 mb-1.5">
+      Smart-Money-Score <span class="text-slate-500">(notional-gewichtet · <span class="text-rose-400">−100 short</span> … <span class="text-emerald-400">+100 long</span>)</span>
+      · Fokus: BTC + Whitelist
+    </div>
+    <div id="focus" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-2"></div>
+  </div>
+
   <!-- Consensus bar -->
   <div class="mb-3">
-    <div class="text-xs text-slate-400 mb-1">Konsens (offene Positionen der Top 20 je Coin · <span class="text-emerald-400">L</span>/<span class="text-rose-400">S</span>)</div>
+    <div class="text-xs text-slate-400 mb-1">Konsens aller Coins (≥2 Trader) je Coin · <span class="text-emerald-400">L</span>/<span class="text-rose-400">S</span> · Score</div>
     <div id="consensus" class="flex flex-wrap gap-1.5"></div>
   </div>
 
@@ -123,17 +132,47 @@ function flatRows(){
   return out;
 }
 
+function scoreCol(s){ return s>=15?"emerald": s<=-15?"rose":"slate"; }
+
+function renderFocus(){
+  const wrap=document.getElementById("focus"); wrap.innerHTML="";
+  const byCoin={}; for(const a of SNAP.aggregates) byCoin[a.coin]=a;
+  const focus = SNAP.focus || ["BTC","ETH","ADA","FET","ATOM"];
+  for(const coin of focus){
+    const a = byCoin[coin] || {coin, long:0, short:0, score:0, totalNotional:0};
+    const has = (a.long+a.short)>0;
+    const s = a.score||0, col = scoreCol(s), w = Math.abs(s)/2;   // 0..50% half-width
+    wrap.insertAdjacentHTML("beforeend", `
+      <div class="bg-slate-800/50 border border-slate-700 rounded-lg p-2.5">
+        <div class="flex items-center justify-between mb-1.5">
+          <span class="font-bold text-white text-sm">${coin}</span>
+          <span class="text-${col}-400 font-bold num text-base">${has? (s>0?"+":"")+s : "—"}</span>
+        </div>
+        <div class="relative h-2.5 bg-slate-900 rounded">
+          <div class="absolute top-0 bottom-0 left-1/2 w-px bg-slate-600"></div>
+          <div class="absolute top-0 bottom-0 bg-${col}-500 rounded" style="${s>=0?`left:50%;width:${w}%`:`right:50%;width:${w}%`}"></div>
+        </div>
+        <div class="text-[10px] text-slate-500 mt-1.5">
+          ${has? `<span class="text-emerald-400">${a.long}L</span> / <span class="text-rose-400">${a.short}S</span> · $${usd(a.totalNotional)}`
+                : "keine Position der Top 20"}
+        </div>
+      </div>`);
+  }
+}
+
 function render(){
+  renderFocus();
   // consensus
   const cons=document.getElementById("consensus"); cons.innerHTML="";
   let aggs = SNAP.aggregates.filter(a=>a.long+a.short>=2);
   if(!aggs.length) aggs = SNAP.aggregates;            // fallback if nothing shared
   for(const a of aggs){
-    const tot=a.long+a.short, dom=a.long>a.short?"emerald": a.short>a.long?"rose":"slate";
+    const s=a.score||0, scol=scoreCol(s);
     cons.insertAdjacentHTML("beforeend",
       `<span class="px-2 py-1 rounded bg-slate-800/70 border border-slate-700 text-[11px]">
         <b class="text-white">${a.coin}</b>
         <span class="text-emerald-400">${a.long}L</span>/<span class="text-rose-400">${a.short}S</span>
+        <span class="text-${scol}-400 num">${s>0?"+":""}${s}</span>
        </span>`);
   }
   // rows
@@ -240,12 +279,18 @@ async function goLive(){
       done++;
     }catch(e){ failed++; }
   }));
-  // recompute aggregates
+  // recompute aggregates + notional-weighted score
   const agg={};
   for(const t of SNAP.traders) for(const p of t.positions){
-    const a=agg[p.coin]||(agg[p.coin]={coin:p.coin,long:0,short:0}); a[p.side]++;
+    const a=agg[p.coin]||(agg[p.coin]={coin:p.coin,long:0,short:0,longNotional:0,shortNotional:0});
+    a[p.side]++;
+    if(p.side==="long") a.longNotional+=p.notionalUsd; else a.shortNotional+=p.notionalUsd;
   }
-  SNAP.aggregates=Object.values(agg).sort((a,b)=>(b.long+b.short)-(a.long+a.short));
+  for(const a of Object.values(agg)){ const tot=a.longNotional+a.shortNotional;
+    a.totalNotional=tot; a.score=tot? Math.round((a.longNotional-a.shortNotional)/tot*100):0; }
+  for(const c of (SNAP.focus||["BTC","ETH","ADA","FET","ATOM"]))
+    if(!agg[c]) agg[c]={coin:c,long:0,short:0,longNotional:0,shortNotional:0,totalNotional:0,score:0};
+  SNAP.aggregates=Object.values(agg).sort((a,b)=>b.totalNotional-a.totalNotional);
   SNAP.generatedAtMs=nowMs; SNAP.live=true;
   render();
   toast(`Live aktualisiert: ${done} Trader${failed?`, ${failed} fehlgeschlagen`:""}.`, true);

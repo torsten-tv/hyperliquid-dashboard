@@ -5,6 +5,10 @@ Ein statisches Dashboard, das die offenen Positionen der **Top 20 Hyperliquid-Tr
 plus eine Spalte, die je Coin die in **1h / 4h** geöffnete (↑) bzw. geschlossene (↓)
 Kontrakt-Menge anzeigt.
 
+Oben: **Smart-Money-Score** (−100 short … +100 long, **notional-gewichtet**) für
+BTC + Whitelist (ETH, ADA, FET, ATOM) als Bias-Gate — plus eine Konsens-Leiste für
+alle übrigen Coins mit ≥2 Tradern.
+
 **Live:** https://torsten-tv.github.io/hyperliquid-dashboard/
 
 ## Wie es funktioniert
@@ -35,6 +39,7 @@ python -m http.server 8899 --directory docs   # http://localhost:8899
   "generatedAtMs": 0,
   "window": "month",
   "topN": 20,
+  "focus": ["BTC","ETH","ADA","FET","ATOM"],
   "traders": [{
     "addr": "0x…", "name": "…|null",
     "accountValue": 0, "monthPnl": 0, "monthRoi": 0,
@@ -48,7 +53,9 @@ python -m http.server 8899 --directory docs   # http://localhost:8899
       "h4": { /* … */ }
     }
   }],
-  "aggregates": [{ "coin": "ETH", "long": 0, "short": 0 }]
+  "aggregates": [{ "coin": "ETH", "long": 0, "short": 0,
+                   "longNotional": 0, "shortNotional": 0,
+                   "totalNotional": 0, "score": -100 }]  // score: -100 short … +100 long
 }
 ```
 
