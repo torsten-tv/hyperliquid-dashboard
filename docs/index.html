@@ -74,7 +74,7 @@ tailwind.config = { theme: { extend: { fontFamily: { mono: ['ui-monospace','SFMo
 <script>
 const INFO_URL = "https://api.hyperliquid.xyz/info";
 let SNAP = null;
-let sortKey = "uPnl", sortDir = -1;
+let sortKey = "entryTime", sortDir = -1;   // default: newest entries on top
 
 // ---------- formatting ----------
 const nf = (d=2) => new Intl.NumberFormat("de-CH",{minimumFractionDigits:d,maximumFractionDigits:d});
