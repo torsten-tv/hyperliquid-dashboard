@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hyperliquid · Top-Trader Dashboard</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><text y='14' font-size='14'>📈</text></svg>">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = { theme: { extend: { fontFamily: { mono: ['ui-monospace','SFMono-Regular','Menlo','monospace'] } } } };
+</script>
+<style>
+  body { background:#0b0e14; color:#cdd6f4; }
+  .num { font-variant-numeric: tabular-nums; }
+  th { position: sticky; top: 0; background:#11151f; z-index:1; }
+  tr:hover td { background:#141925; }
+  ::-webkit-scrollbar { height:8px; width:8px; }
+  ::-webkit-scrollbar-thumb { background:#2a3142; border-radius:4px; }
+</style>
+</head>
+<body class="font-mono text-sm">
+<div class="max-w-[1400px] mx-auto p-3 sm:p-5">
+
+  <!-- Header -->
+  <div class="flex flex-wrap items-center gap-3 mb-3">
+    <h1 class="text-lg sm:text-xl font-bold text-white">📈 Hyperliquid Top-Trader</h1>
+    <span id="meta" class="text-xs text-slate-400"></span>
+    <div class="ml-auto flex gap-2">
+      <button id="btnReload" class="px-3 py-1.5 rounded bg-sky-600 hover:bg-sky-500 text-white text-xs font-semibold">↻ Neu laden</button>
+      <button id="btnLive" class="px-3 py-1.5 rounded bg-emerald-700 hover:bg-emerald-600 text-white text-xs font-semibold">⚡ Live 1h/4h</button>
+    </div>
+  </div>
+
+  <div id="toast" class="hidden mb-3 text-xs rounded px-3 py-2"></div>
+
+  <!-- Consensus bar -->
+  <div class="mb-3">
+    <div class="text-xs text-slate-400 mb-1">Konsens (offene Positionen der Top 20 je Coin · <span class="text-emerald-400">L</span>/<span class="text-rose-400">S</span>)</div>
+    <div id="consensus" class="flex flex-wrap gap-1.5"></div>
+  </div>
+
+  <!-- Table -->
+  <div class="overflow-x-auto rounded-lg border border-slate-800">
+    <table class="w-full text-xs whitespace-nowrap">
+      <thead>
+        <tr class="text-slate-400 text-left">
+          <th class="px-2 py-2 cursor-pointer" data-sort="name">Trader</th>
+          <th class="px-2 py-2 cursor-pointer" data-sort="coin">Coin</th>
+          <th class="px-2 py-2 cursor-pointer" data-sort="side">Richtung</th>
+          <th class="px-2 py-2 text-right cursor-pointer" data-sort="entryPx">Einstieg</th>
+          <th class="px-2 py-2 text-right cursor-pointer" data-sort="notionalUsd">Größe</th>
+          <th class="px-2 py-2 text-right">Hebel</th>
+          <th class="px-2 py-2 text-right cursor-pointer" data-sort="liqPx">Liquidation</th>
+          <th class="px-2 py-2 text-right cursor-pointer" data-sort="uPnl">uPnL</th>
+          <th class="px-2 py-2 cursor-pointer" data-sort="entryTime">Einstieg Zeit</th>
+          <th class="px-2 py-2">Veränderung 1h / 4h</th>
+        </tr>
+      </thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </div>
+  <div class="mt-3 text-[11px] text-slate-500 leading-relaxed">
+    Daten: Hyperliquid (öffentliche On-Chain-Positionen). „Veränderung" = im Fenster geöffnete (↑) / geschlossene (↓) Kontrakt-Menge je Coin.
+    Trader-Auswahl: Top 20 nach 30-Tage-PnL. Keine Anlageberatung.
+  </div>
+</div>
+
+<script>
+const INFO_URL = "https://api.hyperliquid.xyz/info";
+let SNAP = null;
+let sortKey = "uPnl", sortDir = -1;
+
+// ---------- formatting ----------
+const nf = (d=2) => new Intl.NumberFormat("de-CH",{minimumFractionDigits:d,maximumFractionDigits:d});
+function usd(v){ const a=Math.abs(v);
+  if(a>=1e9) return (v/1e9).toFixed(2)+"B"; if(a>=1e6) return (v/1e6).toFixed(2)+"M";
+  if(a>=1e3) return (v/1e3).toFixed(1)+"k"; return v.toFixed(0); }
+function px(v){ if(v==null) return "—"; const a=Math.abs(v);
+  const d = a>=1000?2: a>=1?3: a>=0.01?5:7; return nf(d).format(v); }
+function sz(v){ if(v==null) return "—"; return v>=1000? nf(0).format(v): nf(v>=1?2:4).format(v); }
+function when(ms){ if(!ms) return "—"; const d=new Date(ms);
+  return d.toLocaleDateString("de-CH",{day:"2-digit",month:"2-digit"})+" "+d.toLocaleTimeString("de-CH",{hour:"2-digit",minute:"2-digit"}); }
+function ago(ms){ const m=Math.round((Date.now()-ms)/60000);
+  if(m<1) return "gerade eben"; if(m<60) return "vor "+m+" Min"; const h=Math.floor(m/60); return "vor "+h+"h "+(m%60)+"m"; }
+function shortAddr(a){ return a.slice(0,6)+"…"+a.slice(-4); }
+function toast(msg, ok){ const t=document.getElementById("toast");
+  t.textContent=msg; t.className="mb-3 text-xs rounded px-3 py-2 "+(ok?"bg-emerald-900/60 text-emerald-200":"bg-amber-900/60 text-amber-200");
+  t.classList.remove("hidden"); }
+
+// ---------- change classification (mirrors refresh.py) ----------
+function classifyDir(d){
+  if(d.startsWith("Open")) return "open";
+  if(d.startsWith("Close")||d.startsWith("Liquidated")) return "close";
+  if(d.includes(">")) return "flip";
+  return null;
+}
+
+// ---------- rendering ----------
+function changeCell(tr, coin){
+  const parts=[];
+  for(const [lbl,win] of [["1h",tr.changes.h1],["4h",tr.changes.h4]]){
+    const c=win[coin]; if(!c) continue;
+    const net = c.openedSz - c.closedSz;
+    const col = net>0?"text-emerald-400": net<0?"text-rose-400":"text-slate-400";
+    parts.push(`<span class="${col}">${lbl} ↑${sz(c.openedSz)} ↓${sz(c.closedSz)}</span>`);
+  }
+  return parts.length? parts.join('<span class="text-slate-600"> · </span>') : '<span class="text-slate-600">—</span>';
+}
+
+function flatRows(){
+  const out=[];
+  for(const t of SNAP.traders) for(const p of t.positions)
+    out.push({t,p});
+  out.sort((a,b)=>{
+    let av,bv;
+    if(["name","coin","side"].includes(sortKey)){
+      av=(sortKey==="name"?(a.t.name||a.t.addr):a.p[sortKey])||""; bv=(sortKey==="name"?(b.t.name||b.t.addr):b.p[sortKey])||"";
+      return av<bv?-sortDir: av>bv?sortDir:0;
+    }
+    av = sortKey==="name"? a.t.name : a.p[sortKey]; bv = sortKey==="name"? b.t.name : b.p[sortKey];
+    av=av??-Infinity; bv=bv??-Infinity; return (av-bv)*sortDir;
+  });
+  return out;
+}
+
+function render(){
+  // consensus
+  const cons=document.getElementById("consensus"); cons.innerHTML="";
+  let aggs = SNAP.aggregates.filter(a=>a.long+a.short>=2);
+  if(!aggs.length) aggs = SNAP.aggregates;            // fallback if nothing shared
+  for(const a of aggs){
+    const tot=a.long+a.short, dom=a.long>a.short?"emerald": a.short>a.long?"rose":"slate";
+    cons.insertAdjacentHTML("beforeend",
+      `<span class="px-2 py-1 rounded bg-slate-800/70 border border-slate-700 text-[11px]">
+        <b class="text-white">${a.coin}</b>
+        <span class="text-emerald-400">${a.long}L</span>/<span class="text-rose-400">${a.short}S</span>
+       </span>`);
+  }
+  // rows
+  const tb=document.getElementById("rows"); tb.innerHTML="";
+  for(const {t,p} of flatRows()){
+    const sideCol = p.side==="long"?"text-emerald-400":"text-rose-400";
+    const pnlCol = p.uPnl>=0?"text-emerald-400":"text-rose-400";
+    const name = t.name? t.name : shortAddr(t.addr);
+    tb.insertAdjacentHTML("beforeend", `
+      <tr class="border-t border-slate-800/60">
+        <td class="px-2 py-1.5">
+          <a href="https://hypurrscan.io/address/${t.addr}" target="_blank" class="text-sky-400 hover:underline" title="${t.addr}">${name}</a>
+          <div class="text-[10px] text-slate-500">PnL 30d ${usd(t.monthPnl)}</div>
+        </td>
+        <td class="px-2 py-1.5 font-bold text-white">${p.coin}</td>
+        <td class="px-2 py-1.5 ${sideCol} font-semibold">${p.side==="long"?"LONG":"SHORT"}</td>
+        <td class="px-2 py-1.5 text-right num">${px(p.entryPx)}</td>
+        <td class="px-2 py-1.5 text-right num">$${usd(p.notionalUsd)}<div class="text-[10px] text-slate-500">${sz(p.szi)} ${p.coin}</div></td>
+        <td class="px-2 py-1.5 text-right text-slate-300">${p.leverage}</td>
+        <td class="px-2 py-1.5 text-right num text-amber-300">${px(p.liqPx)}</td>
+        <td class="px-2 py-1.5 text-right num ${pnlCol}">$${usd(p.uPnl)}</td>
+        <td class="px-2 py-1.5 text-slate-400">${when(p.entryTime)}</td>
+        <td class="px-2 py-1.5">${changeCell(t,p.coin)}</td>
+      </tr>`);
+  }
+  const liveTag = SNAP.live? '<span class="text-emerald-400">· live</span>':'';
+  document.getElementById("meta").innerHTML =
+    `Stand: ${ago(SNAP.generatedAtMs)} (${new Date(SNAP.generatedAtMs).toLocaleTimeString("de-CH")}) · ${SNAP.traders.length} Trader · ${flatRows().length} Positionen ${liveTag}`;
+}
+
+// ---------- data loading ----------
+async function loadSnapshot(){
+  toast("Lade Snapshot …", true);
+  const r = await fetch("data/snapshot.json?t="+Date.now());
+  if(!r.ok){ toast("snapshot.json nicht gefunden ("+r.status+")", false); return; }
+  SNAP = await r.json();
+  if(!SNAP.generatedAtMs) SNAP.generatedAtMs = Date.parse(SNAP.generatedAt);
+  render();
+  document.getElementById("toast").classList.add("hidden");
+}
+
+async function post(body){
+  const r = await fetch(INFO_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
+  if(!r.ok) throw new Error("HTTP "+r.status); return r.json();
+}
+
+function aggChanges(fills, windowMs, nowMs){
+  const cut=nowMs-windowMs, per={};
+  for(const f of fills){
+    if(f.time<cut || f.coin.startsWith("@")) continue;
+    const k=classifyDir(f.dir||""); if(!k) continue;
+    const c = per[f.coin] || (per[f.coin]={openedSz:0,closedSz:0,n:0,lastTime:0});
+    const s=parseFloat(f.sz);
+    if(k==="open"||k==="flip") c.openedSz+=s;
+    if(k==="close"||k==="flip") c.closedSz+=s;
+    c.n++; c.lastTime=Math.max(c.lastTime,f.time);
+  }
+  return per;
+}
+
+async function goLive(){
+  if(!SNAP){ return; }
+  const btn=document.getElementById("btnLive"); btn.disabled=true; btn.textContent="⏳ Live …";
+  const nowMs=Date.now(), start=nowMs-14*86400000;
+  let done=0, failed=0;
+  try {
+    // probe CORS with first trader
+    await post({type:"clearinghouseState",user:SNAP.traders[0].addr});
+  } catch(e){
+    toast("Live nicht verfügbar (CORS/Netzwerk) – zeige weiter den Snapshot. Der Cron aktualisiert alle 15 Min.", false);
+    btn.disabled=false; btn.textContent="⚡ Live 1h/4h"; return;
+  }
+  await Promise.all(SNAP.traders.map(async (t)=>{
+    try{
+      const [state, fills] = await Promise.all([
+        post({type:"clearinghouseState",user:t.addr}),
+        post({type:"userFillsByTime",user:t.addr,startTime:start,aggregateByTime:true})
+      ]);
+      // positions
+      const entry={};
+      for(const f of [...fills].sort((a,b)=>a.time-b.time)){
+        if(f.coin.startsWith("@")) continue;
+        const k=classifyDir(f.dir||""); if(k==="open"||k==="flip") entry[f.coin]=f.time;
+      }
+      t.positions = (state.assetPositions||[]).map(ap=>{
+        const p=ap.position, szi=parseFloat(p.szi); if(szi===0) return null;
+        const lev=p.leverage||{};
+        return {coin:p.coin, side:szi>0?"long":"short", szi:Math.abs(szi),
+          entryPx:p.entryPx?parseFloat(p.entryPx):null, notionalUsd:parseFloat(p.positionValue||0),
+          leverage:`${lev.value??"?"}x ${lev.type||""}`.trim(),
+          liqPx:p.liquidationPx?parseFloat(p.liquidationPx):null,
+          uPnl:parseFloat(p.unrealizedPnl||0), entryTime:entry[p.coin]||null};
+      }).filter(Boolean);
+      t.changes = {h1:aggChanges(fills,3600000,nowMs), h4:aggChanges(fills,4*3600000,nowMs)};
+      done++;
+    }catch(e){ failed++; }
+  }));
+  // recompute aggregates
+  const agg={};
+  for(const t of SNAP.traders) for(const p of t.positions){
+    const a=agg[p.coin]||(agg[p.coin]={coin:p.coin,long:0,short:0}); a[p.side]++;
+  }
+  SNAP.aggregates=Object.values(agg).sort((a,b)=>(b.long+b.short)-(a.long+a.short));
+  SNAP.generatedAtMs=nowMs; SNAP.live=true;
+  render();
+  toast(`Live aktualisiert: ${done} Trader${failed?`, ${failed} fehlgeschlagen`:""}.`, true);
+  btn.disabled=false; btn.textContent="⚡ Live 1h/4h";
+}
+
+// ---------- events ----------
+document.getElementById("btnReload").onclick=loadSnapshot;
+document.getElementById("btnLive").onclick=goLive;
+document.querySelectorAll("th[data-sort]").forEach(th=>th.onclick=()=>{
+  const k=th.dataset.sort; if(sortKey===k) sortDir*=-1; else {sortKey=k; sortDir=(k==="name"||k==="coin"||k==="side")?1:-1;}
+  render();
+});
+loadSnapshot();
+</script>
+</body>
+</html>
