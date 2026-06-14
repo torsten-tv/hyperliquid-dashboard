@@ -138,7 +138,8 @@ function computeAggregates(traders){
 
 function rankedTraders(){
   const key = rankMode==="roi" ? "monthRoi" : "monthPnl";
-  return [...SNAP.traders].sort((a,b)=>(b[key]??-1e30)-(a[key]??-1e30)).slice(0, SNAP.topN||20);
+  return [...SNAP.traders].filter(t=>t.positions.length)   // only active accounts
+    .sort((a,b)=>(b[key]??-1e30)-(a[key]??-1e30)).slice(0, SNAP.topN||20);
 }
 
 function flatRows(list){

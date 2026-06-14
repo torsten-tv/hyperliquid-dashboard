@@ -63,9 +63,14 @@ python -m http.server 8899 --directory docs   # http://localhost:8899
 ## Konfiguration
 
 In `scripts/refresh.py`: `WINDOW` (Ranking-Fenster), `TOP_N` (Anzahl Trader),
-`MIN_ACCOUNT` (Mindest-Accountwert, default $10M), `FILL_LOOKBACK_DAYS`.
-Der Snapshot enthält den **Union-Pool** aus Top-N-nach-PnL + Top-N-nach-ROI; im
-Frontend schaltet der PnL/ROI-Button die sichtbaren Top 20 clientseitig um.
+`MIN_ACCOUNT` (Mindest-Accountwert, default $10M), `CANDIDATES` (Scan-Tiefe je Metrik),
+`FILL_LOOKBACK_DAYS`.
+
+Nur **aktive** Accounts (mit offener Position) kommen rein — die größten Accounts sind
+oft flat. Ablauf: Phase 1 holt günstig die Positionen von `CANDIDATES` Kandidaten je
+Metrik (clearinghouseState), filtert auf aktive, wählt Top-N nach PnL + ROI; Phase 2
+holt die teuren Fills (userFillsByTime) nur für die Ausgewählten. Der PnL/ROI-Button
+schaltet die sichtbaren Top 20 clientseitig um.
 
 ## Hinweise
 

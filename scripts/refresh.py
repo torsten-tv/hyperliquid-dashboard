@@ -19,10 +19,13 @@ LEADERBOARD_URL = "https://stats-data.hyperliquid.xyz/Mainnet/leaderboard"
 INFO_URL = "https://api.hyperliquid.xyz/info"
 WINDOW = "month"          # rank traders by 30-day window
 TOP_N = 20
+CANDIDATES = 70           # scan this deep per metric; the biggest accounts are often
+                          # flat, so we over-fetch (cheap clearinghouseState) and keep
+                          # only active ones. Fills (expensive) run for selected only.
 MIN_ACCOUNT = 10_000_000  # only "whale" accounts (>=$10M) — see README
 FOCUS = ["BTC", "ETH", "ADA", "FET", "ATOM"]  # always-shown bias-gate coins
 FILL_LOOKBACK_DAYS = 14   # how far back to pull fills (entry times + change windows)
-MAX_WORKERS = 8
+MAX_WORKERS = 5
 HEADERS = {"Content-Type": "application/json", "User-Agent": "hl-dashboard/1.0"}
 
 OUT_PATH = os.path.join(
@@ -31,13 +34,16 @@ OUT_PATH = os.path.join(
 )
 
 
-def _post(body: dict, retries: int = 3):
+def _post(body: dict, retries: int = 5):
     for attempt in range(retries):
         try:
             r = requests.post(INFO_URL, json=body, headers=HEADERS, timeout=30)
+            if r.status_code == 429:          # rate limited -> longer backoff
+                time.sleep(3 * (attempt + 1))
+                continue
             r.raise_for_status()
             return r.json()
-        except Exception as exc:  # noqa: BLE001
+        except Exception:  # noqa: BLE001
             if attempt == retries - 1:
                 raise
             time.sleep(1.5 * (attempt + 1))
@@ -69,26 +75,15 @@ def classify_dir(d: str) -> str | None:
     return None  # spot Buy/Sell etc. - ignore for perp position tracking
 
 
-def build_trader(row: dict, now_ms: int) -> dict | None:
+def fetch_positions(row: dict) -> dict | None:
+    """Phase 1 (cheap): clearinghouseState only -> trader with open positions.
+    entryTime + 1h/4h changes are filled later for selected traders only."""
     addr = row["ethAddress"]
     try:
         state = _post({"type": "clearinghouseState", "user": addr})
-        start = now_ms - FILL_LOOKBACK_DAYS * 86_400_000
-        fills = _post({"type": "userFillsByTime", "user": addr,
-                       "startTime": start, "aggregateByTime": True}) or []
     except Exception as exc:  # noqa: BLE001
         print(f"  ! skip {addr}: {exc}", file=sys.stderr)
         return None
-
-    # newest "open" fill per perp coin -> entry time
-    entry_time: dict[str, int] = {}
-    for f in sorted(fills, key=lambda x: x["time"]):
-        coin = f["coin"]
-        if coin.startswith("@"):  # spot pair id, not a perp
-            continue
-        kind = classify_dir(f.get("dir", ""))
-        if kind in ("open", "flip"):
-            entry_time[coin] = f["time"]
 
     positions = []
     for ap in state.get("assetPositions", []):
@@ -96,10 +91,9 @@ def build_trader(row: dict, now_ms: int) -> dict | None:
         szi = float(p["szi"])
         if szi == 0:
             continue
-        coin = p["coin"]
         lev = p.get("leverage", {})
         positions.append({
-            "coin": coin,
+            "coin": p["coin"],
             "side": "long" if szi > 0 else "short",
             "szi": abs(szi),
             "entryPx": float(p["entryPx"]) if p.get("entryPx") else None,
@@ -107,13 +101,45 @@ def build_trader(row: dict, now_ms: int) -> dict | None:
             "leverage": f"{lev.get('value', '?')}x {lev.get('type', '')}".strip(),
             "liqPx": float(p["liquidationPx"]) if p.get("liquidationPx") else None,
             "uPnl": float(p.get("unrealizedPnl", 0) or 0),
-            "entryTime": entry_time.get(coin),
+            "entryTime": None,
         })
+
+    perf = window_perf(row, WINDOW)
+    return {
+        "addr": addr,
+        "name": row.get("displayName") or None,
+        "accountValue": float(row.get("accountValue", 0) or 0),
+        "monthPnl": perf["pnl"],
+        "monthRoi": perf["roi"],
+        "positions": positions,
+    }
+
+
+def enrich_fills(t: dict, now_ms: int) -> dict:
+    """Phase 2: add entry times + 1h/4h change aggregates from userFillsByTime."""
+    addr = t["addr"]
+    try:
+        start = now_ms - FILL_LOOKBACK_DAYS * 86_400_000
+        fills = _post({"type": "userFillsByTime", "user": addr,
+                       "startTime": start, "aggregateByTime": True}) or []
+    except Exception as exc:  # noqa: BLE001
+        print(f"  ! fills failed {addr}: {exc}", file=sys.stderr)
+        fills = []
+
+    # newest "open" fill per perp coin -> entry time
+    entry_time: dict[str, int] = {}
+    for f in sorted(fills, key=lambda x: x["time"]):
+        coin = f["coin"]
+        if coin.startswith("@"):  # spot pair id, not a perp
+            continue
+        if classify_dir(f.get("dir", "")) in ("open", "flip"):
+            entry_time[coin] = f["time"]
+    for p in t["positions"]:
+        p["entryTime"] = entry_time.get(p["coin"])
 
     def changes_for(window_ms: int) -> dict:
         """Aggregate fills per coin within the window (HFT accounts have
-        thousands of micro-fills; raw events are noise). Returns
-        {coin: {openedSz, closedSz, n, lastTime}}."""
+        thousands of micro-fills; raw events are noise)."""
         cutoff = now_ms - window_ms
         per: dict[str, dict] = {}
         for f in fills:
@@ -133,16 +159,8 @@ def build_trader(row: dict, now_ms: int) -> dict | None:
             c["lastTime"] = max(c["lastTime"], f["time"])
         return per
 
-    perf = window_perf(row, WINDOW)
-    return {
-        "addr": addr,
-        "name": row.get("displayName") or None,
-        "accountValue": float(row.get("accountValue", 0) or 0),
-        "monthPnl": perf["pnl"],
-        "monthRoi": perf["roi"],
-        "positions": positions,
-        "changes": {"h1": changes_for(3_600_000), "h4": changes_for(4 * 3_600_000)},
-    }
+    t["changes"] = {"h1": changes_for(3_600_000), "h4": changes_for(4 * 3_600_000)}
+    return t
 
 
 def main() -> int:
@@ -151,26 +169,41 @@ def main() -> int:
     rows = fetch_leaderboard()
     elig = [r for r in rows
             if float(r.get("accountValue", 0) or 0) >= MIN_ACCOUNT]
-    by_pnl = sorted(elig, key=lambda r: window_perf(r, WINDOW)["pnl"], reverse=True)[:TOP_N]
-    by_roi = sorted(elig, key=lambda r: window_perf(r, WINDOW)["roi"], reverse=True)[:TOP_N]
-    pnl_rank = {r["ethAddress"]: i + 1 for i, r in enumerate(by_pnl)}
-    roi_rank = {r["ethAddress"]: i + 1 for i, r in enumerate(by_roi)}
-
-    # union of both top lists -> fetch each trader once; rank by either client-side
-    seen, pool_rows = set(), []
-    for r in by_pnl + by_roi:
+    # candidate set goes deeper than TOP_N: the biggest accounts are often flat
+    # (no open perp position) and we only keep traders that actually hold positions.
+    cand_pnl = sorted(elig, key=lambda r: window_perf(r, WINDOW)["pnl"], reverse=True)[:CANDIDATES]
+    cand_roi = sorted(elig, key=lambda r: window_perf(r, WINDOW)["roi"], reverse=True)[:CANDIDATES]
+    seen, cand = set(), []
+    for r in cand_pnl + cand_roi:
         if r["ethAddress"] not in seen:
             seen.add(r["ethAddress"])
-            pool_rows.append(r)
-    print(f"{len(elig)} accounts >= ${MIN_ACCOUNT:,}. Pool of {len(pool_rows)} "
-          f"(top {TOP_N} by PnL + top {TOP_N} by ROI). Fetching positions + fills...")
+            cand.append(r)
+    print(f"{len(elig)} accounts >= ${MIN_ACCOUNT:,}. Phase 1: positions of "
+          f"{len(cand)} candidates (top {CANDIDATES} by PnL + ROI)...")
 
     with ThreadPoolExecutor(max_workers=MAX_WORKERS) as pool:
-        traders = [t for t in pool.map(lambda r: build_trader(r, now_ms), pool_rows)
-                   if t is not None]
+        fetched = [t for t in pool.map(fetch_positions, cand) if t is not None]
+
+    # keep only accounts that actually hold open positions, then rank among those
+    active = [t for t in fetched if t["positions"]]
+    active_by_pnl = sorted(active, key=lambda t: t["monthPnl"], reverse=True)
+    active_by_roi = sorted(active, key=lambda t: t["monthRoi"], reverse=True)
+    pnl_rank = {t["addr"]: i + 1 for i, t in enumerate(active_by_pnl)}
+    roi_rank = {t["addr"]: i + 1 for i, t in enumerate(active_by_roi)}
+
+    seen, traders = set(), []
+    for t in active_by_pnl[:TOP_N] + active_by_roi[:TOP_N]:
+        if t["addr"] not in seen:
+            seen.add(t["addr"])
+            traders.append(t)
     for t in traders:
         t["rankPnl"] = pnl_rank.get(t["addr"])
         t["rankRoi"] = roi_rank.get(t["addr"])
+    print(f"{len(active)}/{len(fetched)} candidates hold positions. "
+          f"Phase 2: fills for {len(traders)} selected (top {TOP_N} by PnL + ROI)...")
+
+    with ThreadPoolExecutor(max_workers=MAX_WORKERS) as pool:
+        list(pool.map(lambda t: enrich_fills(t, now_ms), traders))
 
     # aggregate per coin: counts + notional-weighted Smart-Money-Score (-100..+100)
     agg: dict[str, dict] = {}
