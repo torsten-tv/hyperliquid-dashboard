@@ -100,6 +100,18 @@ function classifyDir(d){
   if(d.includes(">")) return "flip";
   return null;
 }
+function establishes(f, side){   // fill that opened current position (from flat / flip)
+  if(Math.abs(parseFloat(f.startPosition||"0"))===0) return true;
+  const d=f.dir||"";
+  if(d.includes(">")){ const tail=d.slice(d.lastIndexOf(">")+1);
+    return side==="long" ? tail.includes("Long") : tail.includes("Short"); }
+  return false;
+}
+function entryCell(p){
+  if(p.entryTime) return `<span class="text-slate-300">${when(p.entryTime)}</span>`;
+  if(p.entrySince) return `<span class="text-slate-500" title="Frühester abrufbarer Trade – die Eröffnung kann älter sein. Sehr aktive Accounts (HFT) geben über die API nur ihre ~2000 jüngsten Trades preis.">≥ ${when(p.entrySince)}</span>`;
+  return `<span class="text-slate-600" title="Keine Trade-Historie für diese Position abrufbar">—</span>`;
+}
 
 // ---------- rendering ----------
 function changeCell(tr, coin){
@@ -150,8 +162,10 @@ function flatRows(list){
       av=(sortKey==="name"?(a.t.name||a.t.addr):a.p[sortKey])||""; bv=(sortKey==="name"?(b.t.name||b.t.addr):b.p[sortKey])||"";
       return av<bv?-sortDir: av>bv?sortDir:0;
     }
-    av = sortKey==="name"? a.t.name : a.p[sortKey]; bv = sortKey==="name"? b.t.name : b.p[sortKey];
-    av=av??-Infinity; bv=bv??-Infinity; return (av-bv)*sortDir;
+    const val = r => sortKey==="name" ? r.t.name
+                   : sortKey==="entryTime" ? (r.p.entryTime ?? r.p.entrySince)
+                   : r.p[sortKey];
+    av = val(a) ?? -Infinity; bv = val(b) ?? -Infinity; return (av-bv)*sortDir;
   });
   return out;
 }
@@ -210,7 +224,7 @@ function render(){
         <td class="px-2 py-1.5 text-right text-slate-300">${p.leverage}</td>
         <td class="px-2 py-1.5 text-right num text-amber-300">${px(p.liqPx)}</td>
         <td class="px-2 py-1.5 text-right num ${pnlCol}">$${usd(p.uPnl)}</td>
-        <td class="px-2 py-1.5 text-slate-400">${when(p.entryTime)}</td>
+        <td class="px-2 py-1.5">${entryCell(p)}</td>
         <td class="px-2 py-1.5">${changeCell(t,p.coin)}</td>
       </tr>`);
   }
@@ -267,7 +281,7 @@ function aggChanges(fills, windowMs, nowMs){
 async function goLive(){
   if(!SNAP){ return; }
   const btn=document.getElementById("btnLive"); btn.disabled=true; btn.textContent="⏳ Live …";
-  const nowMs=Date.now(), start=nowMs-14*86400000;
+  const nowMs=Date.now(), start=nowMs-365*86400000;
   let done=0, failed=0;
   try {
     // probe CORS with first trader
@@ -282,21 +296,27 @@ async function goLive(){
         post({type:"clearinghouseState",user:t.addr}),
         post({type:"userFillsByTime",user:t.addr,startTime:start,aggregateByTime:true})
       ]);
-      // positions
-      const entry={};
-      for(const f of [...fills].sort((a,b)=>a.time-b.time)){
-        if(f.coin.startsWith("@")) continue;
-        const k=classifyDir(f.dir||""); if(k==="open"||k==="flip") entry[f.coin]=f.time;
-      }
-      t.positions = (state.assetPositions||[]).map(ap=>{
-        const p=ap.position, szi=parseFloat(p.szi); if(szi===0) return null;
+      // positions (only whitelisted coins, matching the backend)
+      const WL=new Set(SNAP.focus||[]);
+      const positions = (state.assetPositions||[]).map(ap=>{
+        const p=ap.position, szi=parseFloat(p.szi);
+        if(szi===0 || !WL.has(p.coin)) return null;
         const lev=p.leverage||{};
         return {coin:p.coin, side:szi>0?"long":"short", szi:Math.abs(szi),
           entryPx:p.entryPx?parseFloat(p.entryPx):null, notionalUsd:parseFloat(p.positionValue||0),
           leverage:`${lev.value??"?"}x ${lev.type||""}`.trim(),
           liqPx:p.liquidationPx?parseFloat(p.liquidationPx):null,
-          uPnl:parseFloat(p.unrealizedPnl||0), entryTime:entry[p.coin]||null};
+          uPnl:parseFloat(p.unrealizedPnl||0), entryTime:null, entrySince:null};
       }).filter(Boolean);
+      const held={}; positions.forEach(p=>held[p.coin]=p.side);
+      const entry={}, oldest={};
+      for(const f of fills){ const c=f.coin; if(c in held)
+        oldest[c] = oldest[c]===undefined ? f.time : Math.min(oldest[c], f.time); }
+      for(const f of [...fills].sort((a,b)=>b.time-a.time)){   // newest first
+        const c=f.coin; if(c in held && entry[c]===undefined && establishes(f,held[c])) entry[c]=f.time; }
+      positions.forEach(p=>{ p.entryTime=entry[p.coin]??null;
+        p.entrySince=p.entryTime?null:(oldest[p.coin]??null); });
+      t.positions = positions;
       t.changes = {h1:aggChanges(fills,3600000,nowMs), h4:aggChanges(fills,4*3600000,nowMs)};
       done++;
     }catch(e){ failed++; }

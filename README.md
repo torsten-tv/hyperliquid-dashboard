@@ -47,7 +47,9 @@ python -m http.server 8899 --directory docs   # http://localhost:8899
     "positions": [{
       "coin": "ETH", "side": "long|short", "szi": 0,
       "entryPx": 0, "notionalUsd": 0, "leverage": "3x cross",
-      "liqPx": 0, "uPnl": 0, "entryTime": 0
+      "liqPx": 0, "uPnl": 0,
+      "entryTime": 0,    // exakte Eröffnung (Fill aus startPosition 0 / Flip) oder null
+      "entrySince": 0    // Fallback-Untergrenze "≥": ältester sichtbarer Fill, wenn
     }],
     "changes": {
       "h1": { "ETH": { "openedSz": 0, "closedSz": 0, "n": 0, "lastTime": 0 } },
@@ -71,6 +73,14 @@ oft flat. Ablauf: Phase 1 holt günstig die Positionen von `CANDIDATES` Kandidat
 Metrik (clearinghouseState), filtert auf aktive, wählt Top-N nach PnL + ROI; Phase 2
 holt die teuren Fills (userFillsByTime) nur für die Ausgewählten. Der PnL/ROI-Button
 schaltet die sichtbaren Top 20 clientseitig um.
+
+## Einstiegszeit
+
+`entryTime` ist die echte Eröffnung der aktuellen Position (jüngster Fill mit
+`startPosition` = 0 bzw. Flip in die aktuelle Richtung). Findet die API diesen Fill
+nicht (sehr aktive/HFT-Accounts geben nur die ~2000 jüngsten Fills preis, sehr alte
+Positionen fallen raus), wird stattdessen `entrySince` gesetzt — der älteste sichtbare
+Fill als Untergrenze, im UI als „≥ Datum". Ist gar kein Fill abrufbar: „—".
 
 ## Hinweise
 

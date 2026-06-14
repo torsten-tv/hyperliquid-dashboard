@@ -27,7 +27,10 @@ MIN_ACCOUNT = 10_000_000  # only "whale" accounts (>=$10M) — see README
 COINS = ["BTC", "ETH", "ATOM", "TAO", "XRP", "SOL", "BNB", "DOGE", "AVAX"]
 COINSET = set(COINS)
 FOCUS = COINS             # score tiles = the whole tracked universe
-FILL_LOOKBACK_DAYS = 14   # how far back to pull fills (entry times + change windows)
+FILL_LOOKBACK_DAYS = 365  # how far back to request fills. The API caps each response
+                          # at ~2000 fills, so a big window is "free": for low-activity
+                          # accounts it returns their whole history (finds old opens);
+                          # for HFT accounts the 2000 cap still limits how far back we see.
 MAX_WORKERS = 5
 HEADERS = {"Content-Type": "application/json", "User-Agent": "hl-dashboard/1.0"}
 
@@ -118,9 +121,22 @@ def fetch_positions(row: dict) -> dict | None:
     }
 
 
+def establishes(f: dict, side: str) -> bool:
+    """True if this fill opened the current position from flat (startPosition 0)
+    or flipped into the current side — i.e. marks when the position began."""
+    if abs(float(f.get("startPosition", "0") or 0)) == 0:
+        return True
+    d = f.get("dir", "")
+    if ">" in d:                       # "Long > Short" / "Short > Long" flip
+        tail = d.rsplit(">", 1)[-1]
+        return "Long" in tail if side == "long" else "Short" in tail
+    return False
+
+
 def enrich_fills(t: dict, now_ms: int) -> dict:
     """Phase 2: add entry times + 1h/4h change aggregates from userFillsByTime."""
     addr = t["addr"]
+    held = {p["coin"]: p["side"] for p in t["positions"]}
     try:
         start = now_ms - FILL_LOOKBACK_DAYS * 86_400_000
         fills = _post({"type": "userFillsByTime", "user": addr,
@@ -129,16 +145,23 @@ def enrich_fills(t: dict, now_ms: int) -> dict:
         print(f"  ! fills failed {addr}: {exc}", file=sys.stderr)
         fills = []
 
-    # newest "open" fill per perp coin -> entry time
+    # exact open: newest fill that established the current position (from flat / flip)
     entry_time: dict[str, int] = {}
-    for f in sorted(fills, key=lambda x: x["time"]):
-        coin = f["coin"]
-        if coin.startswith("@"):  # spot pair id, not a perp
-            continue
-        if classify_dir(f.get("dir", "")) in ("open", "flip"):
-            entry_time[coin] = f["time"]
+    for f in sorted(fills, key=lambda x: x["time"], reverse=True):
+        c = f["coin"]
+        if c in held and c not in entry_time and establishes(f, held[c]):
+            entry_time[c] = f["time"]
+    # fallback lower bound: oldest visible fill per coin ("held at least since")
+    oldest_seen: dict[str, int] = {}
+    for f in fills:
+        c = f["coin"]
+        if c in held:
+            ot = oldest_seen.get(c)
+            oldest_seen[c] = f["time"] if ot is None else min(ot, f["time"])
     for p in t["positions"]:
-        p["entryTime"] = entry_time.get(p["coin"])
+        c = p["coin"]
+        p["entryTime"] = entry_time.get(c)
+        p["entrySince"] = None if entry_time.get(c) else oldest_seen.get(c)
 
     def changes_for(window_ms: int) -> dict:
         """Aggregate fills per coin within the window (HFT accounts have
