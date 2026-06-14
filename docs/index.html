@@ -40,7 +40,7 @@ tailwind.config = { theme: { extend: { fontFamily: { mono: ['ui-monospace','SFMo
   <!-- Smart-Money-Score (tracked coins) -->
   <div class="mb-4">
     <div class="text-xs text-slate-400 mb-1.5">
-      Smart-Money-Score je Coin <span class="text-slate-500">(notional-gewichtet · <span class="text-rose-400">−100 short</span> … <span class="text-emerald-400">+100 long</span>)</span>
+      Smart-Money-Score je Coin <span class="text-slate-500">(notional-gewichtet · <span class="text-rose-400">−100 short</span> … <span class="text-emerald-400">+100 long</span>) · Klick = nach Coin filtern</span><span id="coinFilterInfo"></span>
     </div>
     <div id="focus" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-9 gap-2"></div>
   </div>
@@ -114,6 +114,10 @@ function changeCell(tr, coin){
 }
 
 let rankMode = "pnl";   // "pnl" | "roi" — which leaderboard ranks the visible Top 20
+let coinFilter = new Set();   // empty = all coins; otherwise only these coins shown
+
+function toggleCoin(c){ coinFilter.has(c) ? coinFilter.delete(c) : coinFilter.add(c); if(SNAP) render(); }
+function clearCoins(){ coinFilter.clear(); if(SNAP) render(); }
 
 function computeAggregates(traders){
   const agg={};
@@ -136,9 +140,10 @@ function rankedTraders(){
 }
 
 function flatRows(list){
-  const out=[];
+  let out=[];
   for(const t of list) for(const p of t.positions)
     out.push({t,p});
+  if(coinFilter.size) out = out.filter(r=>coinFilter.has(r.p.coin));   // coin filter
   out.sort((a,b)=>{
     let av,bv;
     if(["name","coin","side"].includes(sortKey)){
@@ -161,8 +166,10 @@ function renderFocus(aggs){
     const a = byCoin[coin] || {coin, long:0, short:0, score:0, totalNotional:0};
     const has = (a.long+a.short)>0;
     const s = a.score||0, col = scoreCol(s), w = Math.abs(s)/2;   // 0..50% half-width
+    const sel = coinFilter.has(coin), dim = coinFilter.size>0 && !sel;
     wrap.insertAdjacentHTML("beforeend", `
-      <div class="bg-slate-800/50 border border-slate-700 rounded-lg p-2.5">
+      <div onclick="toggleCoin('${coin}')" title="Klick: nur ${coin} anzeigen"
+           class="bg-slate-800/50 border ${sel?'border-sky-400 ring-1 ring-sky-400':'border-slate-700'} ${dim?'opacity-40':''} rounded-lg p-2.5 cursor-pointer hover:border-slate-500 transition">
         <div class="flex items-center justify-between mb-1.5">
           <span class="font-bold text-white text-sm">${coin}</span>
           <span class="text-${col}-400 font-bold num text-base">${has? (s>0?"+":"")+s : "—"}</span>
@@ -207,6 +214,10 @@ function render(){
         <td class="px-2 py-1.5">${changeCell(t,p.coin)}</td>
       </tr>`);
   }
+  const cfi=document.getElementById("coinFilterInfo");
+  cfi.innerHTML = coinFilter.size
+    ? ` · <span class="text-sky-400">Filter: ${[...coinFilter].join(", ")}</span> <a onclick="clearCoins()" class="text-slate-400 underline cursor-pointer">alle anzeigen</a>`
+    : "";
   const flat = ranked.filter(t=>!t.positions.length).length;
   const liveTag = SNAP.live? '<span class="text-emerald-400">· live</span>':'';
   const rankLbl = rankMode==="roi" ? "ROI %" : "PnL";
