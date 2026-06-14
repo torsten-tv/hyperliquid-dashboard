@@ -166,10 +166,19 @@ function render(){
 
 // ---------- data loading ----------
 async function loadSnapshot(){
+  if(location.protocol === "file:"){
+    toast("Lokal per Doppelklick geöffnet – Chrome blockiert hier das Laden lokaler Daten. Bitte start.bat nutzen (lokaler Server) oder die Online-URL: torsten-tv.github.io/hyperliquid-dashboard/", false);
+    return;
+  }
   toast("Lade Snapshot …", true);
-  const r = await fetch("data/snapshot.json?t="+Date.now());
-  if(!r.ok){ toast("snapshot.json nicht gefunden ("+r.status+")", false); return; }
-  SNAP = await r.json();
+  try {
+    const r = await fetch("data/snapshot.json?t="+Date.now());
+    if(!r.ok){ toast("snapshot.json nicht gefunden ("+r.status+")", false); return; }
+    SNAP = await r.json();
+  } catch(e){
+    toast("Daten konnten nicht geladen werden: "+e+" – bei lokalem Gebrauch bitte start.bat verwenden.", false);
+    return;
+  }
   if(!SNAP.generatedAtMs) SNAP.generatedAtMs = Date.parse(SNAP.generatedAt);
   render();
   document.getElementById("toast").classList.add("hidden");
