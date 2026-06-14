@@ -25,6 +25,10 @@ tailwind.config = { theme: { extend: { fontFamily: { mono: ['ui-monospace','SFMo
   <div class="flex flex-wrap items-center gap-3 mb-3">
     <h1 class="text-lg sm:text-xl font-bold text-white">📈 Hyperliquid Top-Trader</h1>
     <span id="meta" class="text-xs text-slate-400"></span>
+    <div class="flex rounded overflow-hidden border border-slate-700 text-xs">
+      <button id="rankPnl" class="px-3 py-1.5 font-semibold">Nach PnL</button>
+      <button id="rankRoi" class="px-3 py-1.5 font-semibold border-l border-slate-700">Nach ROI&nbsp;%</button>
+    </div>
     <div class="ml-auto flex gap-2">
       <button id="btnReload" class="px-3 py-1.5 rounded bg-sky-600 hover:bg-sky-500 text-white text-xs font-semibold">↻ Neu laden</button>
       <button id="btnLive" class="px-3 py-1.5 rounded bg-emerald-700 hover:bg-emerald-600 text-white text-xs font-semibold">⚡ Live 1h/4h</button>
@@ -116,9 +120,30 @@ function changeCell(tr, coin){
   return parts.length? parts.join('<span class="text-slate-600"> · </span>') : '<span class="text-slate-600">—</span>';
 }
 
-function flatRows(){
+let rankMode = "pnl";   // "pnl" | "roi" — which leaderboard ranks the visible Top 20
+
+function computeAggregates(traders){
+  const agg={};
+  for(const t of traders) for(const p of t.positions){
+    const a=agg[p.coin]||(agg[p.coin]={coin:p.coin,long:0,short:0,longNotional:0,shortNotional:0});
+    a[p.side]++;
+    if(p.side==="long") a.longNotional+=p.notionalUsd; else a.shortNotional+=p.notionalUsd;
+  }
+  for(const a of Object.values(agg)){ const tot=a.longNotional+a.shortNotional;
+    a.totalNotional=tot; a.score=tot? Math.round((a.longNotional-a.shortNotional)/tot*100):0; }
+  for(const c of (SNAP.focus||["BTC","ETH","ADA","FET","ATOM"]))
+    if(!agg[c]) agg[c]={coin:c,long:0,short:0,longNotional:0,shortNotional:0,totalNotional:0,score:0};
+  return Object.values(agg).sort((a,b)=>b.totalNotional-a.totalNotional);
+}
+
+function rankedTraders(){
+  const key = rankMode==="roi" ? "monthRoi" : "monthPnl";
+  return [...SNAP.traders].sort((a,b)=>(b[key]??-1e30)-(a[key]??-1e30)).slice(0, SNAP.topN||20);
+}
+
+function flatRows(list){
   const out=[];
-  for(const t of SNAP.traders) for(const p of t.positions)
+  for(const t of list) for(const p of t.positions)
     out.push({t,p});
   out.sort((a,b)=>{
     let av,bv;
@@ -134,9 +159,9 @@ function flatRows(){
 
 function scoreCol(s){ return s>=15?"emerald": s<=-15?"rose":"slate"; }
 
-function renderFocus(){
+function renderFocus(aggs){
   const wrap=document.getElementById("focus"); wrap.innerHTML="";
-  const byCoin={}; for(const a of SNAP.aggregates) byCoin[a.coin]=a;
+  const byCoin={}; for(const a of aggs) byCoin[a.coin]=a;
   const focus = SNAP.focus || ["BTC","ETH","ADA","FET","ATOM"];
   for(const coin of focus){
     const a = byCoin[coin] || {coin, long:0, short:0, score:0, totalNotional:0};
@@ -154,19 +179,21 @@ function renderFocus(){
         </div>
         <div class="text-[10px] text-slate-500 mt-1.5">
           ${has? `<span class="text-emerald-400">${a.long}L</span> / <span class="text-rose-400">${a.short}S</span> · $${usd(a.totalNotional)}`
-                : "keine Position der Top 20"}
+                : "keine Position offen"}
         </div>
       </div>`);
   }
 }
 
 function render(){
-  renderFocus();
+  const ranked = rankedTraders();
+  const aggs = computeAggregates(ranked);
+  renderFocus(aggs);
   // consensus
   const cons=document.getElementById("consensus"); cons.innerHTML="";
-  let aggs = SNAP.aggregates.filter(a=>a.long+a.short>=2);
-  if(!aggs.length) aggs = SNAP.aggregates;            // fallback if nothing shared
-  for(const a of aggs){
+  let shown = aggs.filter(a=>a.long+a.short>=2);
+  if(!shown.length) shown = aggs;            // fallback if nothing shared
+  for(const a of shown){
     const s=a.score||0, scol=scoreCol(s);
     cons.insertAdjacentHTML("beforeend",
       `<span class="px-2 py-1 rounded bg-slate-800/70 border border-slate-700 text-[11px]">
@@ -176,8 +203,9 @@ function render(){
        </span>`);
   }
   // rows
+  const rows = flatRows(ranked);
   const tb=document.getElementById("rows"); tb.innerHTML="";
-  for(const {t,p} of flatRows()){
+  for(const {t,p} of rows){
     const sideCol = p.side==="long"?"text-emerald-400":"text-rose-400";
     const pnlCol = p.uPnl>=0?"text-emerald-400":"text-rose-400";
     const name = t.name? t.name : shortAddr(t.addr);
@@ -185,7 +213,7 @@ function render(){
       <tr class="border-t border-slate-800/60">
         <td class="px-2 py-1.5">
           <a href="https://hypurrscan.io/address/${t.addr}" target="_blank" class="text-sky-400 hover:underline" title="${t.addr}">${name}</a>
-          <div class="text-[10px] text-slate-500">PnL 30d ${usd(t.monthPnl)}</div>
+          <div class="text-[10px] text-slate-500">30d $${usd(t.monthPnl)} <span class="text-slate-400">(${t.monthRoi>=0?"+":""}${Math.round(t.monthRoi*100)}%)</span> · Konto $${usd(t.accountValue||0)}</div>
         </td>
         <td class="px-2 py-1.5 font-bold text-white">${p.coin}</td>
         <td class="px-2 py-1.5 ${sideCol} font-semibold">${p.side==="long"?"LONG":"SHORT"}</td>
@@ -198,9 +226,11 @@ function render(){
         <td class="px-2 py-1.5">${changeCell(t,p.coin)}</td>
       </tr>`);
   }
+  const flat = ranked.filter(t=>!t.positions.length).length;
   const liveTag = SNAP.live? '<span class="text-emerald-400">· live</span>':'';
+  const rankLbl = rankMode==="roi" ? "ROI %" : "PnL";
   document.getElementById("meta").innerHTML =
-    `Stand: ${ago(SNAP.generatedAtMs)} (${new Date(SNAP.generatedAtMs).toLocaleTimeString("de-CH")}) · ${SNAP.traders.length} Trader · ${flatRows().length} Positionen ${liveTag}`;
+    `Stand: ${ago(SNAP.generatedAtMs)} (${new Date(SNAP.generatedAtMs).toLocaleTimeString("de-CH")}) · Top ${ranked.length} nach ${rankLbl} (≥$${usd(SNAP.minAccount||0)}) · ${rows.length} Positionen${flat?` · ${flat} flat`:""} ${liveTag}`;
 }
 
 // ---------- data loading ----------
@@ -279,25 +309,22 @@ async function goLive(){
       done++;
     }catch(e){ failed++; }
   }));
-  // recompute aggregates + notional-weighted score
-  const agg={};
-  for(const t of SNAP.traders) for(const p of t.positions){
-    const a=agg[p.coin]||(agg[p.coin]={coin:p.coin,long:0,short:0,longNotional:0,shortNotional:0});
-    a[p.side]++;
-    if(p.side==="long") a.longNotional+=p.notionalUsd; else a.shortNotional+=p.notionalUsd;
-  }
-  for(const a of Object.values(agg)){ const tot=a.longNotional+a.shortNotional;
-    a.totalNotional=tot; a.score=tot? Math.round((a.longNotional-a.shortNotional)/tot*100):0; }
-  for(const c of (SNAP.focus||["BTC","ETH","ADA","FET","ATOM"]))
-    if(!agg[c]) agg[c]={coin:c,long:0,short:0,longNotional:0,shortNotional:0,totalNotional:0,score:0};
-  SNAP.aggregates=Object.values(agg).sort((a,b)=>b.totalNotional-a.totalNotional);
   SNAP.generatedAtMs=nowMs; SNAP.live=true;
-  render();
+  render();   // render() recomputes aggregates/score client-side from the ranked set
   toast(`Live aktualisiert: ${done} Trader${failed?`, ${failed} fehlgeschlagen`:""}.`, true);
   btn.disabled=false; btn.textContent="⚡ Live 1h/4h";
 }
 
 // ---------- events ----------
+function setRankUI(){
+  const on="bg-sky-600 text-white", off="bg-slate-800 text-slate-300 hover:bg-slate-700";
+  document.getElementById("rankPnl").className="px-3 py-1.5 font-semibold "+(rankMode==="pnl"?on:off);
+  document.getElementById("rankRoi").className="px-3 py-1.5 font-semibold border-l border-slate-700 "+(rankMode==="roi"?on:off);
+}
+function setRank(m){ rankMode=m; setRankUI(); if(SNAP) render(); }
+document.getElementById("rankPnl").onclick=()=>setRank("pnl");
+document.getElementById("rankRoi").onclick=()=>setRank("roi");
+setRankUI();
 document.getElementById("btnReload").onclick=loadSnapshot;
 document.getElementById("btnLive").onclick=goLive;
 document.querySelectorAll("th[data-sort]").forEach(th=>th.onclick=()=>{

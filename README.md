@@ -1,7 +1,8 @@
 # Hyperliquid Top-Trader Dashboard
 
 Ein statisches Dashboard, das die offenen Positionen der **Top 20 Hyperliquid-Trader**
-(nach 30-Tage-PnL) zeigt — Einstieg, Größe, Hebel, Liquidation, uPnL, Einstiegszeit —
+(Accounts **≥ $10 Mio**, umschaltbar nach **30-Tage-PnL** oder **ROI %**) zeigt —
+Einstieg, Größe, Hebel, Liquidation, uPnL, Einstiegszeit —
 plus eine Spalte, die je Coin die in **1h / 4h** geöffnete (↑) bzw. geschlossene (↓)
 Kontrakt-Menge anzeigt.
 
@@ -62,7 +63,9 @@ python -m http.server 8899 --directory docs   # http://localhost:8899
 ## Konfiguration
 
 In `scripts/refresh.py`: `WINDOW` (Ranking-Fenster), `TOP_N` (Anzahl Trader),
-`FILL_LOOKBACK_DAYS`.
+`MIN_ACCOUNT` (Mindest-Accountwert, default $10M), `FILL_LOOKBACK_DAYS`.
+Der Snapshot enthält den **Union-Pool** aus Top-N-nach-PnL + Top-N-nach-ROI; im
+Frontend schaltet der PnL/ROI-Button die sichtbaren Top 20 clientseitig um.
 
 ## Hinweise
 

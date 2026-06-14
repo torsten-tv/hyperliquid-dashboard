@@ -17,8 +17,9 @@ import requests
 
 LEADERBOARD_URL = "https://stats-data.hyperliquid.xyz/Mainnet/leaderboard"
 INFO_URL = "https://api.hyperliquid.xyz/info"
-WINDOW = "month"          # rank traders by 30-day PnL
+WINDOW = "month"          # rank traders by 30-day window
 TOP_N = 20
+MIN_ACCOUNT = 10_000_000  # only "whale" accounts (>=$10M) — see README
 FOCUS = ["BTC", "ETH", "ADA", "FET", "ATOM"]  # always-shown bias-gate coins
 FILL_LOOKBACK_DAYS = 14   # how far back to pull fills (entry times + change windows)
 MAX_WORKERS = 8
@@ -148,13 +149,28 @@ def main() -> int:
     now_ms = int(time.time() * 1000)
     print("Fetching leaderboard...")
     rows = fetch_leaderboard()
-    rows.sort(key=lambda r: window_perf(r, WINDOW)["pnl"], reverse=True)
-    top = rows[:TOP_N]
-    print(f"Top {len(top)} by {WINDOW} PnL. Fetching positions + fills...")
+    elig = [r for r in rows
+            if float(r.get("accountValue", 0) or 0) >= MIN_ACCOUNT]
+    by_pnl = sorted(elig, key=lambda r: window_perf(r, WINDOW)["pnl"], reverse=True)[:TOP_N]
+    by_roi = sorted(elig, key=lambda r: window_perf(r, WINDOW)["roi"], reverse=True)[:TOP_N]
+    pnl_rank = {r["ethAddress"]: i + 1 for i, r in enumerate(by_pnl)}
+    roi_rank = {r["ethAddress"]: i + 1 for i, r in enumerate(by_roi)}
+
+    # union of both top lists -> fetch each trader once; rank by either client-side
+    seen, pool_rows = set(), []
+    for r in by_pnl + by_roi:
+        if r["ethAddress"] not in seen:
+            seen.add(r["ethAddress"])
+            pool_rows.append(r)
+    print(f"{len(elig)} accounts >= ${MIN_ACCOUNT:,}. Pool of {len(pool_rows)} "
+          f"(top {TOP_N} by PnL + top {TOP_N} by ROI). Fetching positions + fills...")
 
     with ThreadPoolExecutor(max_workers=MAX_WORKERS) as pool:
-        traders = [t for t in pool.map(lambda r: build_trader(r, now_ms), top)
+        traders = [t for t in pool.map(lambda r: build_trader(r, now_ms), pool_rows)
                    if t is not None]
+    for t in traders:
+        t["rankPnl"] = pnl_rank.get(t["addr"])
+        t["rankRoi"] = roi_rank.get(t["addr"])
 
     # aggregate per coin: counts + notional-weighted Smart-Money-Score (-100..+100)
     agg: dict[str, dict] = {}
@@ -179,6 +195,7 @@ def main() -> int:
         "generatedAtMs": now_ms,
         "window": WINDOW,
         "topN": TOP_N,
+        "minAccount": MIN_ACCOUNT,
         "focus": FOCUS,
         "traders": traders,
         "aggregates": aggregates,
