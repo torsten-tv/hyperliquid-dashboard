@@ -1,6 +1,6 @@
 {
- "generatedAt": "2026-09-21T14:08:18+00:00",
- "generatedAtMs": 1789999688490,
+ "generatedAt": "2026-09-21T19:24:41+00:00",
+ "generatedAtMs": 1790018671799,
  "window": "month",
  "topN": 20,
  "minAccount": 10000000,
@@ -17,21 +17,48 @@
  ],
  "traders": [
   {
+   "addr": "0xe867fbdad3291530e41530301ecb77693850c78e",
+   "name": null,
+   "accountValue": 99650705.405669,
+   "monthPnl": 17554336.725829,
+   "monthRoi": 0.2138259829,
+   "positions": [
+    {
+     "coin": "XRP",
+     "side": "long",
+     "szi": 100000.0,
+     "entryPx": 1.5095,
+     "notionalUsd": 150090.0,
+     "leverage": "20x cross",
+     "liqPx": null,
+     "uPnl": -860.0,
+     "entryTime": null,
+     "entrySince": null
+    }
+   ],
+   "rankPnl": 1,
+   "rankRoi": 38,
+   "changes": {
+    "h1": {},
+    "h4": {}
+   }
+  },
+  {
    "addr": "0xea0027b6ea9b6d7d401b5266979cc3b3ca87a918",
    "name": null,
-   "accountValue": 26977099.498158,
-   "monthPnl": 13477203.380142,
-   "monthRoi": 0.7285015404,
+   "accountValue": 26372207.214886,
+   "monthPnl": 12872311.09687,
+   "monthRoi": 0.695804478,
    "positions": [
     {
      "coin": "ETH",
      "side": "long",
-     "szi": 10003.8263,
+     "szi": 9003.8263,
      "entryPx": 2003.01,
-     "notionalUsd": 27198402.94444,
+     "notionalUsd": 24918989.66788,
      "leverage": "5x cross",
-     "liqPx": 480.0175446343,
-     "uPnl": 7160611.330374,
+     "liqPx": 264.7009786368,
+     "uPnl": 6884210.802574,
      "entryTime": null,
      "entrySince": 1776324296107
     },
@@ -40,103 +67,16 @@
      "side": "long",
      "szi": 20022.69,
      "entryPx": 66.0904,
-     "notionalUsd": 2358873.1089,
+     "notionalUsd": 2360074.4703,
      "leverage": "20x cross",
      "liqPx": null,
-     "uPnl": 1035564.50987,
-     "entryTime": null,
-     "entrySince": null
-    }
-   ],
-   "rankPnl": 1,
-   "rankRoi": 8,
-   "changes": {
-    "h1": {},
-    "h4": {}
-   }
-  },
-  {
-   "addr": "0x77375a8c9d13bf79afb2a87f1b0ac1dfd5f5bf66",
-   "name": null,
-   "accountValue": 46547460.251901,
-   "monthPnl": 12728520.98656,
-   "monthRoi": 0.3763703413,
-   "positions": [
-    {
-     "coin": "BTC",
-     "side": "short",
-     "szi": 25.1552,
-     "entryPx": 79550.5,
-     "notionalUsd": 2142443.2288,
-     "leverage": "15x cross",
-     "liqPx": 673576.0190557464,
-     "uPnl": -141332.66984,
-     "entryTime": 1784697592939,
-     "entrySince": null
-    },
-    {
-     "coin": "ETH",
-     "side": "short",
-     "szi": 799.7919,
-     "entryPx": 2494.83,
-     "notionalUsd": 2174474.21772,
-     "leverage": "15x cross",
-     "liqPx": 21089.4057969979,
-     "uPnl": -179128.19047,
-     "entryTime": null,
-     "entrySince": 1784428467488
-    },
-    {
-     "coin": "SOL",
-     "side": "short",
-     "szi": 20384.06,
-     "entryPx": 102.9403,
-     "notionalUsd": 2401446.1086,
-     "leverage": "10x cross",
-     "liqPx": 835.0856651017,
-     "uPnl": -303104.2173,
-     "entryTime": 1784697592757,
-     "entrySince": null
-    },
-    {
-     "coin": "AVAX",
-     "side": "short",
-     "szi": 171568.06,
-     "entryPx": 7.4346,
-     "notionalUsd": 1909552.5078,
-     "leverage": "10x cross",
-     "liqPx": 94.3207254755,
-     "uPnl": -634007.488961,
-     "entryTime": null,
-     "entrySince": null
-    },
-    {
-     "coin": "BNB",
-     "side": "short",
-     "szi": 2646.179,
-     "entryPx": 752.734,
-     "notionalUsd": 2099716.57471,
-     "leverage": "10x cross",
-     "liqPx": 5957.5497528763,
-     "uPnl": -107845.9911,
-     "entryTime": null,
-     "entrySince": null
-    },
-    {
-     "coin": "XRP",
-     "side": "short",
-     "szi": 1413466.0,
-     "entryPx": 1.414161,
-     "notionalUsd": 2092212.3732,
-     "leverage": "10x cross",
-     "liqPx": 11.8242692553,
-     "uPnl": -93343.7249,
+     "uPnl": 1036765.87127,
      "entryTime": null,
      "entrySince": null
     }
    ],
    "rankPnl": 2,
-   "rankRoi": 17,
+   "rankRoi": 10,
    "changes": {
     "h1": {},
     "h4": {}
@@ -145,19 +85,19 @@
   {
    "addr": "0x9c6a5b4662c722d2c47f43d6c9813cb080ffa4ed",
    "name": null,
-   "accountValue": 28512451.200835,
-   "monthPnl": 12210520.502773,
-   "monthRoi": 1.2422937067,
+   "accountValue": 28573293.71637,
+   "monthPnl": 12271363.018308,
+   "monthRoi": 1.2484838011,
    "positions": [
     {
      "coin": "SOL",
      "side": "long",
      "szi": 550087.69,
      "entryPx": 80.8579,
-     "notionalUsd": 64796864.329553,
+     "notionalUsd": 64838836.0203,
      "leverage": "20x cross",
-     "liqPx": 67.2415373192,
-     "uPnl": 20317877.940474,
+     "liqPx": 67.2495486775,
+     "uPnl": 20359849.631221,
      "entryTime": null,
      "entrySince": 1786186262498
     }
@@ -170,27 +110,27 @@
    }
   },
   {
-   "addr": "0x9321d8117e73b0c79035f0e87debcfd8dbb1d75a",
+   "addr": "0x469e9a7f624b04c24f0e64edf8d8a277e6bf58a5",
    "name": null,
-   "accountValue": 18997383.252317,
-   "monthPnl": 10448845.676709,
-   "monthRoi": 1.2201410422,
+   "accountValue": 26263454.092995,
+   "monthPnl": 11728733.851787,
+   "monthRoi": 0.7048456066,
    "positions": [
     {
      "coin": "BTC",
      "side": "long",
-     "szi": 30.0,
-     "entryPx": 81664.8,
-     "notionalUsd": 2555520.0,
-     "leverage": "40x cross",
-     "liqPx": null,
-     "uPnl": 105573.470355,
+     "szi": 200.0,
+     "entryPx": 85187.2,
+     "notionalUsd": 17262800.0,
+     "leverage": "25x cross",
+     "liqPx": 19489.0393069316,
+     "uPnl": 225345.51692,
      "entryTime": null,
-     "entrySince": null
+     "entrySince": 1787074969747
     }
    ],
    "rankPnl": 4,
-   "rankRoi": 3,
+   "rankRoi": 7,
    "changes": {
     "h1": {},
     "h4": {}
@@ -199,178 +139,112 @@
   {
    "addr": "0x0392a716dbee1661ea781881826b928daeb5d7d9",
    "name": null,
-   "accountValue": 26710525.626872,
-   "monthPnl": 10446652.078728,
-   "monthRoi": 0.6429854032,
+   "accountValue": 20375468.819647,
+   "monthPnl": 11411595.246482,
+   "monthRoi": 0.7023770979,
    "positions": [
     {
      "coin": "ETH",
      "side": "long",
-     "szi": 56244.477,
-     "entryPx": 2536.07,
-     "notionalUsd": 152928732.963,
+     "szi": 56861.051,
+     "entryPx": 2538.25,
+     "notionalUsd": 157368644.7476,
      "leverage": "8x cross",
-     "liqPx": 2448.0497834941,
-     "uPnl": 10288662.54872,
+     "liqPx": 2452.6216719854,
+     "uPnl": 13041011.29532,
      "entryTime": 1787738641451,
      "entrySince": null
     }
    ],
    "rankPnl": 5,
-   "rankRoi": 9,
+   "rankRoi": 8,
    "changes": {
     "h1": {},
     "h4": {}
    }
   },
   {
-   "addr": "0x4e23288cee4960f9f962195c22948e4bc7ae20c3",
+   "addr": "0x77375a8c9d13bf79afb2a87f1b0ac1dfd5f5bf66",
    "name": null,
-   "accountValue": 33247822.326406,
-   "monthPnl": 9741815.32736,
-   "monthRoi": 0.4144393953,
-   "positions": [
-    {
-     "coin": "ETH",
-     "side": "long",
-     "szi": 818.9113,
-     "entryPx": 2537.27,
-     "notionalUsd": 2226619.8247,
-     "leverage": "20x cross",
-     "liqPx": null,
-     "uPnl": 148817.448975,
-     "entryTime": null,
-     "entrySince": 1789656163175
-    },
-    {
-     "coin": "SOL",
-     "side": "long",
-     "szi": 218.5,
-     "entryPx": 108.4542,
-     "notionalUsd": 25743.67,
-     "leverage": "20x cross",
-     "liqPx": null,
-     "uPnl": 2046.414185,
-     "entryTime": null,
-     "entrySince": null
-    }
-   ],
-   "rankPnl": 6,
-   "rankRoi": 15,
-   "changes": {
-    "h1": {},
-    "h4": {}
-   }
-  },
-  {
-   "addr": "0xa2ce501d9c0c5e23d34272f84402cfb7835b3126",
-   "name": null,
-   "accountValue": 23091642.495168,
-   "monthPnl": 9223413.168666,
-   "monthRoi": 0.4888329737,
+   "accountValue": 44869490.9627,
+   "monthPnl": 11050551.697359001,
+   "monthRoi": 0.3267543745,
    "positions": [
     {
      "coin": "BTC",
-     "side": "long",
-     "szi": 300.49417,
-     "entryPx": 70766.9,
-     "notionalUsd": 25597295.37728,
-     "leverage": "20x cross",
-     "liqPx": 22233.1417883828,
-     "uPnl": 4332250.467256,
-     "entryTime": null,
+     "side": "short",
+     "szi": 25.1552,
+     "entryPx": 79550.5,
+     "notionalUsd": 2171245.9328,
+     "leverage": "15x cross",
+     "liqPx": 669231.1226962768,
+     "uPnl": -170135.37384,
+     "entryTime": 1784697592939,
      "entrySince": null
     },
     {
      "coin": "ETH",
-     "side": "long",
-     "szi": 10016.8752,
-     "entryPx": 2162.83,
-     "notionalUsd": 27235883.6688,
-     "leverage": "10x cross",
-     "liqPx": 816.097786006,
-     "uPnl": 5571081.61964,
+     "side": "short",
+     "szi": 799.7919,
+     "entryPx": 2494.83,
+     "notionalUsd": 2213504.06244,
+     "leverage": "15x cross",
+     "liqPx": 20966.8062068837,
+     "uPnl": -218158.03519,
      "entryTime": null,
-     "entrySince": 1765816997242
+     "entrySince": 1784428467488
     },
     {
      "coin": "SOL",
-     "side": "long",
-     "szi": 0.31,
-     "entryPx": 77.7668,
-     "notionalUsd": 36.5242,
-     "leverage": "5x cross",
-     "liqPx": null,
-     "uPnl": 12.41648,
-     "entryTime": null,
-     "entrySince": 1765816997242
-    }
-   ],
-   "rankPnl": 7,
-   "rankRoi": 13,
-   "changes": {
-    "h1": {},
-    "h4": {}
-   }
-  },
-  {
-   "addr": "0xeadc152ac1014ace57c6b353f89adf5faffe9d55",
-   "name": null,
-   "accountValue": 20733761.140916,
-   "monthPnl": 8710517.503284,
-   "monthRoi": 0.7453573111,
-   "positions": [
+     "side": "short",
+     "szi": 20384.06,
+     "entryPx": 102.9403,
+     "notionalUsd": 2402669.1522,
+     "leverage": "10x cross",
+     "liqPx": 828.453411381,
+     "uPnl": -304327.2609,
+     "entryTime": 1784697592757,
+     "entrySince": null
+    },
     {
      "coin": "AVAX",
-     "side": "long",
-     "szi": 304088.2,
-     "entryPx": 8.1066,
-     "notionalUsd": 3384197.5778,
+     "side": "short",
+     "szi": 171568.06,
+     "entryPx": 7.4346,
+     "notionalUsd": 1880214.36954,
      "leverage": "10x cross",
-     "liqPx": null,
-     "uPnl": 919057.989481,
+     "liqPx": 93.3735476834,
+     "uPnl": -604669.350701,
      "entryTime": null,
      "entrySince": null
     },
     {
-     "coin": "DOGE",
-     "side": "long",
-     "szi": 15396800.0,
-     "entryPx": 0.087654,
-     "notionalUsd": 1427006.2176,
+     "coin": "BNB",
+     "side": "short",
+     "szi": 2646.179,
+     "entryPx": 752.734,
+     "notionalUsd": 2117445.97401,
      "leverage": "10x cross",
-     "liqPx": null,
-     "uPnl": 77407.278254,
+     "liqPx": 5915.908299071,
+     "uPnl": -125575.3904,
      "entryTime": null,
      "entrySince": null
     },
     {
      "coin": "XRP",
-     "side": "long",
-     "szi": 2024756.0,
-     "entryPx": 1.209307,
-     "notionalUsd": 2996031.4532,
-     "leverage": "20x cross",
-     "liqPx": null,
-     "uPnl": 547477.976331,
-     "entryTime": null,
-     "entrySince": null
-    },
-    {
-     "coin": "TAO",
-     "side": "long",
-     "szi": 10131.754,
-     "entryPx": 230.85,
-     "notionalUsd": 2867286.382,
-     "leverage": "5x cross",
-     "liqPx": null,
-     "uPnl": 528367.910589,
+     "side": "short",
+     "szi": 1413466.0,
+     "entryPx": 1.414161,
+     "notionalUsd": 2121753.8126,
+     "leverage": "10x cross",
+     "liqPx": 11.7486580542,
+     "uPnl": -122885.1643,
      "entryTime": null,
      "entrySince": null
     }
    ],
-   "rankPnl": 8,
-   "rankRoi": 6,
+   "rankPnl": 6,
+   "rankRoi": 22,
    "changes": {
     "h1": {},
     "h4": {}
@@ -379,19 +253,19 @@
   {
    "addr": "0x15a4f009bb324a3fb9e36137136b201e3fe0dfdb",
    "name": null,
-   "accountValue": 34800343.48676,
-   "monthPnl": 8117228.48939,
-   "monthRoi": 0.2932194766,
+   "accountValue": 35795917.273532,
+   "monthPnl": 9112802.276162,
+   "monthRoi": 0.3291826905,
    "positions": [
     {
      "coin": "BTC",
      "side": "long",
      "szi": 1000.0,
      "entryPx": 62353.6,
-     "notionalUsd": 85201000.0,
+     "notionalUsd": 86314000.0,
      "leverage": "40x cross",
-     "liqPx": 51795.4500614319,
-     "uPnl": 22847345.11882,
+     "liqPx": 51328.1727251109,
+     "uPnl": 23960345.11882,
      "entryTime": 1783336798589,
      "entrySince": null
     },
@@ -400,43 +274,82 @@
      "side": "long",
      "szi": 10000.0,
      "entryPx": 1761.94,
-     "notionalUsd": 27192000.0,
+     "notionalUsd": 27676000.0,
      "leverage": "20x cross",
      "liqPx": null,
-     "uPnl": 9572518.96602,
+     "uPnl": 10056518.96602,
      "entryTime": 1783497568137,
      "entrySince": null
     }
    ],
-   "rankPnl": 9,
-   "rankRoi": 27,
+   "rankPnl": 7,
+   "rankRoi": 21,
    "changes": {
     "h1": {},
     "h4": {}
    }
   },
   {
-   "addr": "0xf29c6bc1147a841519b382459a6d7a373c6b9971",
+   "addr": "0xa2ce501d9c0c5e23d34272f84402cfb7835b3126",
    "name": null,
-   "accountValue": 13848965.001278,
-   "monthPnl": 7919063.269284,
-   "monthRoi": 0.9917870553,
+   "accountValue": 17938504.273064,
+   "monthPnl": 9070274.946562,
+   "monthRoi": 0.4807167795,
    "positions": [
+    {
+     "coin": "BTC",
+     "side": "long",
+     "szi": 300.49417,
+     "entryPx": 70766.9,
+     "notionalUsd": 25936853.78938,
+     "leverage": "20x cross",
+     "liqPx": 34666.9149379613,
+     "uPnl": 4671808.879356,
+     "entryTime": null,
+     "entrySince": null
+    },
     {
      "coin": "ETH",
      "side": "long",
-     "szi": 4000.0,
-     "entryPx": 2681.47,
-     "notionalUsd": 10876000.0,
+     "szi": 10016.8752,
+     "entryPx": 2162.83,
+     "notionalUsd": 27722703.80352,
+     "leverage": "10x cross",
+     "liqPx": 1206.3924914302,
+     "uPnl": 6057901.75436,
+     "entryTime": null,
+     "entrySince": 1765816997242
+    }
+   ],
+   "rankPnl": 8,
+   "rankRoi": 14,
+   "changes": {
+    "h1": {},
+    "h4": {}
+   }
+  },
+  {
+   "addr": "0x4e23288cee4960f9f962195c22948e4bc7ae20c3",
+   "name": null,
+   "accountValue": 32269553.206117,
+   "monthPnl": 8763546.207071,
+   "monthRoi": 0.3728215604,
+   "positions": [
+    {
+     "coin": "SOL",
+     "side": "long",
+     "szi": 218.5,
+     "entryPx": 108.4542,
+     "notionalUsd": 25754.595,
      "leverage": "20x cross",
-     "liqPx": 1374.742791137,
-     "uPnl": 150095.19529,
+     "liqPx": null,
+     "uPnl": 2057.339185,
      "entryTime": null,
      "entrySince": null
     }
    ],
-   "rankPnl": 10,
-   "rankRoi": 4,
+   "rankPnl": 9,
+   "rankRoi": 16,
    "changes": {
     "h1": {},
     "h4": {}
@@ -445,25 +358,169 @@
   {
    "addr": "0xaeaab54bbf65bfd6efed7d2eb68372298e3c2416",
    "name": null,
-   "accountValue": 23532719.733936,
-   "monthPnl": 7398858.825996,
-   "monthRoi": 0.4585919557,
+   "accountValue": 24848435.354091,
+   "monthPnl": 8714574.446151,
+   "monthRoi": 0.54014191,
    "positions": [
     {
      "coin": "BTC",
      "side": "long",
      "szi": 1460.0,
      "entryPx": 81764.7,
-     "notionalUsd": 124368640.0,
+     "notionalUsd": 126018440.0,
      "leverage": "20x cross",
-     "liqPx": 69801.3157313508,
-     "uPnl": 4992145.31137,
+     "liqPx": 69810.1800543298,
+     "uPnl": 6641945.31137,
      "entryTime": 1786528932912,
      "entrySince": null
     }
    ],
+   "rankPnl": 10,
+   "rankRoi": 12,
+   "changes": {
+    "h1": {},
+    "h4": {}
+   }
+  },
+  {
+   "addr": "0x9321d8117e73b0c79035f0e87debcfd8dbb1d75a",
+   "name": null,
+   "accountValue": 17141495.366526,
+   "monthPnl": 8592957.790918,
+   "monthRoi": 1.0034238039,
+   "positions": [
+    {
+     "coin": "BTC",
+     "side": "long",
+     "szi": 50.0,
+     "entryPx": 83375.8,
+     "notionalUsd": 4315700.0,
+     "leverage": "40x cross",
+     "liqPx": null,
+     "uPnl": 146906.602085,
+     "entryTime": null,
+     "entrySince": null
+    }
+   ],
    "rankPnl": 11,
-   "rankRoi": 14,
+   "rankRoi": 3,
+   "changes": {
+    "h1": {},
+    "h4": {}
+   }
+  },
+  {
+   "addr": "0xeadc152ac1014ace57c6b353f89adf5faffe9d55",
+   "name": null,
+   "accountValue": 20201592.6845,
+   "monthPnl": 8162908.802248,
+   "monthRoi": 0.6984985396,
+   "positions": [
+    {
+     "coin": "AVAX",
+     "side": "long",
+     "szi": 254088.2,
+     "entryPx": 8.1066,
+     "notionalUsd": 2784552.5838,
+     "leverage": "10x cross",
+     "liqPx": null,
+     "uPnl": 724745.986168,
+     "entryTime": null,
+     "entrySince": null
+    },
+    {
+     "coin": "DOGE",
+     "side": "long",
+     "szi": 15396800.0,
+     "entryPx": 0.087654,
+     "notionalUsd": 1513828.7728,
+     "leverage": "10x cross",
+     "liqPx": null,
+     "uPnl": 164229.833454,
+     "entryTime": null,
+     "entrySince": null
+    },
+    {
+     "coin": "XRP",
+     "side": "long",
+     "szi": 2024756.0,
+     "entryPx": 1.209307,
+     "notionalUsd": 3039361.2316,
+     "leverage": "20x cross",
+     "liqPx": null,
+     "uPnl": 590807.754731,
+     "entryTime": null,
+     "entrySince": null
+    },
+    {
+     "coin": "TAO",
+     "side": "long",
+     "szi": 10131.754,
+     "entryPx": 230.85,
+     "notionalUsd": 2929090.0814,
+     "leverage": "5x cross",
+     "liqPx": null,
+     "uPnl": 590171.609989,
+     "entryTime": null,
+     "entrySince": null
+    }
+   ],
+   "rankPnl": 12,
+   "rankRoi": 9,
+   "changes": {
+    "h1": {},
+    "h4": {}
+   }
+  },
+  {
+   "addr": "0xf29c6bc1147a841519b382459a6d7a373c6b9971",
+   "name": null,
+   "accountValue": 10182880.545567,
+   "monthPnl": 7548011.973573,
+   "monthRoi": 0.9453164236,
+   "positions": [
+    {
+     "coin": "ETH",
+     "side": "long",
+     "szi": 4000.0,
+     "entryPx": 2681.47,
+     "notionalUsd": 11070400.0,
+     "leverage": "20x cross",
+     "liqPx": 1466.2205200056,
+     "uPnl": 344495.19529,
+     "entryTime": null,
+     "entrySince": null
+    }
+   ],
+   "rankPnl": 13,
+   "rankRoi": 4,
+   "changes": {
+    "h1": {},
+    "h4": {}
+   }
+  },
+  {
+   "addr": "0x8ea85cbd59affca28162fc286d5c093dd0f8edbc",
+   "name": null,
+   "accountValue": 36825104.488486,
+   "monthPnl": 7053507.896697,
+   "monthRoi": 0.2284048973,
+   "positions": [
+    {
+     "coin": "BTC",
+     "side": "long",
+     "szi": 1000.0,
+     "entryPx": 72771.2,
+     "notionalUsd": 86327000.0,
+     "leverage": "3x cross",
+     "liqPx": 49888.1217607251,
+     "uPnl": 13555721.68354,
+     "entryTime": 1770147891400,
+     "entrySince": null
+    }
+   ],
+   "rankPnl": 14,
+   "rankRoi": 37,
    "changes": {
     "h1": {},
     "h4": {}
@@ -472,76 +529,52 @@
   {
    "addr": "0xcfe2729438475c5eb9e8e6da6b314a0b9e2d8fb3",
    "name": null,
-   "accountValue": 24381578.501439,
-   "monthPnl": 6391236.491439,
-   "monthRoi": 0.3552593101,
+   "accountValue": 24159144.453159,
+   "monthPnl": 6168802.443159,
+   "monthRoi": 0.342895229,
    "positions": [
     {
      "coin": "BTC",
      "side": "long",
      "szi": 500.0,
      "entryPx": 78639.3,
-     "notionalUsd": 42592000.0,
+     "notionalUsd": 43157000.0,
      "leverage": "10x cross",
-     "liqPx": 39378.4602657296,
-     "uPnl": 3272327.59935,
+     "liqPx": 39819.7720616446,
+     "uPnl": 3837327.59935,
      "entryTime": 1788916782524,
      "entrySince": null
     }
    ],
-   "rankPnl": 12,
-   "rankRoi": 18,
+   "rankPnl": 15,
+   "rankRoi": 19,
    "changes": {
     "h1": {},
     "h4": {}
    }
   },
   {
-   "addr": "0xc179e03922afe8fa9533d3f896338b9fb87ce0c8",
+   "addr": "0xde8d9e530b0528ffa7b1190f862536c055dd9524",
    "name": null,
-   "accountValue": 21712561.210815,
-   "monthPnl": 5552596.013292,
-   "monthRoi": 0.3189459253,
+   "accountValue": 30922027.552922,
+   "monthPnl": 6138389.776975,
+   "monthRoi": 0.2476791274,
    "positions": [
     {
      "coin": "ETH",
      "side": "long",
-     "szi": 2004.788,
-     "entryPx": 2213.5,
-     "notionalUsd": 5451018.572,
-     "leverage": "4x cross",
-     "liqPx": null,
-     "uPnl": 1013408.788478,
-     "entryTime": null,
-     "entrySince": 1789753693029
-    },
-    {
-     "coin": "SOL",
-     "side": "short",
-     "szi": 4897.28,
-     "entryPx": 115.8783,
-     "notionalUsd": 576997.5296,
-     "leverage": "5x cross",
-     "liqPx": 4156.8551835818,
-     "uPnl": -9508.5856,
-     "entryTime": null,
-     "entrySince": null
-    },
-    {
-     "coin": "XRP",
-     "side": "short",
-     "szi": 265815.0,
-     "entryPx": 1.45624,
-     "notionalUsd": 393326.4555,
-     "leverage": "4x cross",
-     "liqPx": 75.8934321966,
-     "uPnl": -6236.0199,
-     "entryTime": null,
+     "szi": 30282.4035,
+     "entryPx": 2134.45,
+     "notionalUsd": 83809579.9266,
+     "leverage": "20x cross",
+     "liqPx": 1763.9923527859,
+     "uPnl": 19173249.350488,
+     "entryTime": 1787145222374,
      "entrySince": null
     }
    ],
-   "rankPnl": 13,
-   "rankRoi": 22,
+   "rankPnl": 16,
+   "rankRoi": 32,
    "changes": {
     "h1": {},
     "h4": {}
@@ -550,25 +583,25 @@
   {
    "addr": "0x15b325660a1c4a9582a7d834c31119c0cb9e3a42",
    "name": null,
-   "accountValue": 14156597.624295,
-   "monthPnl": 5531356.119284,
-   "monthRoi": 0.6412986948,
+   "accountValue": 13887690.095233,
+   "monthPnl": 5262448.590222,
+   "monthRoi": 0.6101218832,
    "positions": [
     {
      "coin": "BTC",
      "side": "long",
-     "szi": 300.0,
+     "szi": 250.0,
      "entryPx": 67524.6,
-     "notionalUsd": 25555200.0,
+     "notionalUsd": 21578500.0,
      "leverage": "20x cross",
-     "liqPx": 42388.241848081,
-     "uPnl": 5297817.25814,
+     "liqPx": 34370.9203193276,
+     "uPnl": 4697347.715275,
      "entryTime": null,
      "entrySince": 1759412218975
     }
    ],
-   "rankPnl": 14,
-   "rankRoi": 10,
+   "rankPnl": 17,
+   "rankRoi": 11,
    "changes": {
     "h1": {},
     "h4": {}
@@ -577,198 +610,136 @@
   {
    "addr": "0x77ddcc4b6440b3a32b7802f053105c2fad3ae0e9",
    "name": null,
-   "accountValue": 11087441.890489,
-   "monthPnl": 4707442.690489,
-   "monthRoi": 0.7378437744,
+   "accountValue": 11567021.334125,
+   "monthPnl": 5187022.134125,
+   "monthRoi": 0.8130129756,
    "positions": [
     {
      "coin": "ETH",
      "side": "long",
-     "szi": 29224.6757,
-     "entryPx": 2676.34,
-     "notionalUsd": 79461893.2283,
+     "szi": 41228.487,
+     "entryPx": 2693.92,
+     "notionalUsd": 114103960.6212,
      "leverage": "10x cross",
-     "liqPx": 2394.7546601305,
-     "uPnl": 1246463.39078,
+     "liqPx": 2512.2100469041,
+     "uPnl": 3037711.98332,
      "entryTime": 1788029987420,
      "entrySince": null
     }
    ],
-   "rankPnl": 15,
-   "rankRoi": 7,
-   "changes": {
-    "h1": {},
-    "h4": {}
-   }
-  },
-  {
-   "addr": "0x0871deb34bfd2052b1c10dc4f6c0912a2a47e927",
-   "name": "PURRINA Pro Plan",
-   "accountValue": 10267574.078105,
-   "monthPnl": 4460311.618011,
-   "monthRoi": 0.6391990668,
-   "positions": [
-    {
-     "coin": "TAO",
-     "side": "long",
-     "szi": 5000.0,
-     "entryPx": 279.609,
-     "notionalUsd": 1415000.0,
-     "leverage": "5x cross",
-     "liqPx": null,
-     "uPnl": 16954.613552,
-     "entryTime": null,
-     "entrySince": 1788865324675
-    }
-   ],
-   "rankPnl": 16,
-   "rankRoi": 11,
-   "changes": {
-    "h1": {},
-    "h4": {}
-   }
-  },
-  {
-   "addr": "0x5f94a51948d2376ad34a6fadfa2544e651b74b96",
-   "name": null,
-   "accountValue": 18291726.534178,
-   "monthPnl": 4410391.191652,
-   "monthRoi": 0.31772096,
-   "positions": [
-    {
-     "coin": "BNB",
-     "side": "long",
-     "szi": 688.705,
-     "entryPx": 725.96,
-     "notionalUsd": 546707.8031,
-     "leverage": "10x cross",
-     "liqPx": null,
-     "uPnl": 46735.37116,
-     "entryTime": null,
-     "entrySince": null
-    }
-   ],
-   "rankPnl": 17,
-   "rankRoi": 23,
-   "changes": {
-    "h1": {},
-    "h4": {}
-   }
-  },
-  {
-   "addr": "0x9c89f595f5515609ad61f6fda94beff85ae6600e",
-   "name": null,
-   "accountValue": 17547854.094025,
-   "monthPnl": 4389570.316632,
-   "monthRoi": 0.3335974806,
-   "positions": [
-    {
-     "coin": "SOL",
-     "side": "long",
-     "szi": 189472.5,
-     "entryPx": 115.2094,
-     "notionalUsd": 22323649.95,
-     "leverage": "20x cross",
-     "liqPx": 32.8545049829,
-     "uPnl": 494634.68888,
-     "entryTime": 1761649497874,
-     "entrySince": null
-    }
-   ],
    "rankPnl": 18,
-   "rankRoi": 21,
+   "rankRoi": 6,
    "changes": {
     "h1": {},
     "h4": {}
    }
   },
   {
-   "addr": "0x051c2e6d49cf82ebc47f08f9b85800f94fc9693c",
+   "addr": "0xc179e03922afe8fa9533d3f896338b9fb87ce0c8",
    "name": null,
-   "accountValue": 14206309.044059,
-   "monthPnl": 4040279.604155,
-   "monthRoi": 0.397425552,
+   "accountValue": 21279421.091066,
+   "monthPnl": 5101749.953543,
+   "monthRoi": 0.293048937,
    "positions": [
     {
      "coin": "ETH",
      "side": "long",
-     "szi": 3189.8949,
-     "entryPx": 1997.53,
-     "notionalUsd": 8673324.2331,
-     "leverage": "8x cross",
+     "szi": 1731.7276,
+     "entryPx": 2213.5,
+     "notionalUsd": 4792729.30576,
+     "leverage": "4x cross",
      "liqPx": null,
-     "uPnl": 2301385.83937,
-     "entryTime": 1769879420753,
-     "entrySince": null
+     "uPnl": 959540.290305,
+     "entryTime": null,
+     "entrySince": 1789758938385
     },
     {
      "coin": "SOL",
-     "side": "long",
-     "szi": 13039.07,
-     "entryPx": 76.7003,
-     "notionalUsd": 1536263.2274,
+     "side": "short",
+     "szi": 5161.07,
+     "entryPx": 116.0476,
+     "notionalUsd": 608335.3209,
      "leverage": "5x cross",
-     "liqPx": null,
-     "uPnl": 536162.5372,
-     "entryTime": 1769361454227,
+     "liqPx": 3900.097856425,
+     "uPnl": -9405.2468,
+     "entryTime": null,
+     "entrySince": null
+    },
+    {
+     "coin": "XRP",
+     "side": "short",
+     "szi": 318978.0,
+     "entryPx": 1.4653,
+     "notionalUsd": 478817.8758,
+     "leverage": "4x cross",
+     "liqPx": 62.6976173867,
+     "uPnl": -11419.4124,
+     "entryTime": null,
      "entrySince": null
     }
    ],
    "rankPnl": 19,
-   "rankRoi": 16,
+   "rankRoi": 27,
    "changes": {
     "h1": {},
     "h4": {}
    }
   },
   {
-   "addr": "0x237152b038d88f4156a0cd71090462de7e3f0883",
+   "addr": "0x13d032655aca891fad353e19424d2a087eccfa8a",
    "name": null,
-   "accountValue": 12521781.681564,
-   "monthPnl": 3243507.851283,
-   "monthRoi": 0.3495809577,
+   "accountValue": 25445645.441373,
+   "monthPnl": 4733337.830896,
+   "monthRoi": 0.2285277874,
    "positions": [
     {
-     "coin": "BTC",
-     "side": "long",
-     "szi": 400.0,
-     "entryPx": 78565.4,
-     "notionalUsd": 34073600.0,
+     "coin": "XRP",
+     "side": "short",
+     "szi": 2932.0,
+     "entryPx": 1.498725,
+     "notionalUsd": 4401.2252,
      "leverage": "20x cross",
-     "liqPx": 54625.256845443,
-     "uPnl": 2647409.81064,
-     "entryTime": 1787925976498,
+     "liqPx": 60.2697160989,
+     "uPnl": -6.9616,
+     "entryTime": 1790005734693,
      "entrySince": null
     }
    ],
    "rankPnl": 20,
-   "rankRoi": 20,
+   "rankRoi": 36,
    "changes": {
     "h1": {},
-    "h4": {}
+    "h4": {
+     "XRP": {
+      "openedSz": 2932.0,
+      "closedSz": 8285.0,
+      "n": 3,
+      "lastTime": 1790006923033
+     }
+    }
    }
   },
   {
    "addr": "0xa1830e8d9f019feb448478a171bb37cc6c4c0482",
    "name": null,
-   "accountValue": 13725364.366787,
-   "monthPnl": 2112263.657126,
-   "monthRoi": 1.9335919844,
+   "accountValue": 13560687.445474,
+   "monthPnl": 1947586.794339,
+   "monthRoi": 1.7828447703,
    "positions": [
     {
      "coin": "ETH",
      "side": "long",
      "szi": 304.3362,
      "entryPx": 1868.5,
-     "notionalUsd": 827490.1278,
+     "notionalUsd": 842280.86712,
      "leverage": "12x isolated",
-     "liqPx": 1778.9246611753,
-     "uPnl": 258835.236845,
+     "liqPx": 1779.3297156136,
+     "uPnl": 273625.976165,
      "entryTime": null,
      "entrySince": 1759757365428
     }
    ],
-   "rankPnl": 29,
+   "rankPnl": 38,
    "rankRoi": 1,
    "changes": {
     "h1": {},
@@ -778,24 +749,24 @@
   {
    "addr": "0x0c5d0549a1f7ad185286a08bfc10f8e9a1c936b3",
    "name": null,
-   "accountValue": 12662474.06757,
-   "monthPnl": 2662472.468301,
-   "monthRoi": 0.9128008397,
+   "accountValue": 12727909.579085,
+   "monthPnl": 2727907.979816,
+   "monthRoi": 0.9352347205,
    "positions": [
     {
      "coin": "ETH",
      "side": "long",
      "szi": 11000.0,
      "entryPx": 2482.2,
-     "notionalUsd": 29909000.0,
+     "notionalUsd": 30443600.0,
      "leverage": "20x cross",
-     "liqPx": 1621.5355454194,
-     "uPnl": 2604746.76468,
+     "liqPx": 1621.9405998645,
+     "uPnl": 3139346.76468,
      "entryTime": 1787885246542,
      "entrySince": null
     }
    ],
-   "rankPnl": 26,
+   "rankPnl": 33,
    "rankRoi": 5,
    "changes": {
     "h1": {},
@@ -805,25 +776,91 @@
   {
    "addr": "0x93ab7dbdeb996806454de19c35c8247f4b2511f8",
    "name": null,
-   "accountValue": 12510094.908128,
-   "monthPnl": 3207648.422574,
-   "monthRoi": 0.4999887476,
+   "accountValue": 12677548.452653,
+   "monthPnl": 3375101.967099,
+   "monthRoi": 0.5260903887,
    "positions": [
     {
      "coin": "BTC",
      "side": "long",
      "szi": 400.0,
      "entryPx": 78521.5,
-     "notionalUsd": 34073600.0,
+     "notionalUsd": 34525600.0,
      "leverage": "20x cross",
-     "liqPx": 54909.8309554076,
-     "uPnl": 2664980.38161,
+     "liqPx": 54918.8578888962,
+     "uPnl": 3116980.38161,
      "entryTime": 1787926025644,
      "entrySince": null
     }
    ],
-   "rankPnl": 21,
-   "rankRoi": 12,
+   "rankPnl": 24,
+   "rankRoi": 13,
+   "changes": {
+    "h1": {},
+    "h4": {}
+   }
+  },
+  {
+   "addr": "0x237152b038d88f4156a0cd71090462de7e3f0883",
+   "name": null,
+   "accountValue": 12777555.226089,
+   "monthPnl": 3499281.395808,
+   "monthRoi": 0.3771478898,
+   "positions": [
+    {
+     "coin": "BTC",
+     "side": "long",
+     "szi": 400.0,
+     "entryPx": 78565.4,
+     "notionalUsd": 34525600.0,
+     "leverage": "20x cross",
+     "liqPx": 54634.2837789316,
+     "uPnl": 3099409.81064,
+     "entryTime": 1787925976498,
+     "entrySince": null
+    }
+   ],
+   "rankPnl": 23,
+   "rankRoi": 15,
+   "changes": {
+    "h1": {},
+    "h4": {}
+   }
+  },
+  {
+   "addr": "0x051c2e6d49cf82ebc47f08f9b85800f94fc9693c",
+   "name": null,
+   "accountValue": 13931521.453534,
+   "monthPnl": 3765492.01363,
+   "monthRoi": 0.3703958361,
+   "positions": [
+    {
+     "coin": "ETH",
+     "side": "long",
+     "szi": 3189.8949,
+     "entryPx": 1997.53,
+     "notionalUsd": 8828353.12524,
+     "leverage": "8x cross",
+     "liqPx": null,
+     "uPnl": 2456414.73151,
+     "entryTime": 1769879420753,
+     "entrySince": null
+    },
+    {
+     "coin": "SOL",
+     "side": "long",
+     "szi": 13039.07,
+     "entryPx": 76.7003,
+     "notionalUsd": 1536915.1809,
+     "leverage": "5x cross",
+     "liqPx": null,
+     "uPnl": 536814.4907,
+     "entryTime": 1769361454227,
+     "entrySince": null
+    }
+   ],
+   "rankPnl": 22,
+   "rankRoi": 17,
    "changes": {
     "h1": {},
     "h4": {}
@@ -832,25 +869,52 @@
   {
    "addr": "0xec4a6f59960fb55a7fa49262e2628687b322cf62",
    "name": null,
-   "accountValue": 10960613.462092,
-   "monthPnl": 2872359.426546,
-   "monthRoi": 0.3551272517,
+   "accountValue": 10885587.722249,
+   "monthPnl": 2797333.686703,
+   "monthRoi": 0.3458513635,
    "positions": [
     {
      "coin": "TAO",
      "side": "long",
      "szi": 2000.0,
      "entryPx": 251.999,
-     "notionalUsd": 566000.0,
+     "notionalUsd": 578200.0,
      "leverage": "5x cross",
      "liqPx": null,
-     "uPnl": 62000.64831,
+     "uPnl": 74200.64831,
      "entryTime": null,
      "entrySince": null
     }
    ],
-   "rankPnl": 25,
-   "rankRoi": 19,
+   "rankPnl": 30,
+   "rankRoi": 18,
+   "changes": {
+    "h1": {},
+    "h4": {}
+   }
+  },
+  {
+   "addr": "0x9c89f595f5515609ad61f6fda94beff85ae6600e",
+   "name": null,
+   "accountValue": 17660105.420643,
+   "monthPnl": 4501821.64325,
+   "monthRoi": 0.3421283292,
+   "positions": [
+    {
+     "coin": "SOL",
+     "side": "long",
+     "szi": 189472.5,
+     "entryPx": 115.2094,
+     "notionalUsd": 22333123.575,
+     "leverage": "20x cross",
+     "liqPx": 32.9084102676,
+     "uPnl": 504108.31388,
+     "entryTime": 1761649497874,
+     "entrySince": null
+    }
+   ],
+   "rankPnl": 21,
+   "rankRoi": 20,
    "changes": {
     "h1": {},
     "h4": {}
@@ -859,75 +923,75 @@
  ],
  "aggregates": [
   {
-   "coin": "BTC",
-   "long": 8,
-   "short": 1,
-   "longNotional": 374016855.37728,
-   "shortNotional": 2142443.2288,
-   "totalNotional": 376159298.60608,
-   "score": 99
-  },
-  {
    "coin": "ETH",
    "long": 11,
    "short": 1,
-   "longNotional": 371980365.56214,
-   "shortNotional": 2174474.21772,
-   "totalNotional": 374154839.77985996,
+   "longNotional": 491577242.06492,
+   "shortNotional": 2213504.06244,
+   "totalNotional": 493790746.12736,
+   "score": 99
+  },
+  {
+   "coin": "BTC",
+   "long": 10,
+   "short": 1,
+   "longNotional": 479961493.78938,
+   "shortNotional": 2171245.9328,
+   "totalNotional": 482132739.72218,
    "score": 99
   },
   {
    "coin": "SOL",
-   "long": 6,
+   "long": 5,
    "short": 2,
-   "longNotional": 91041430.81005302,
-   "shortNotional": 2978443.6382,
-   "totalNotional": 94019874.44825302,
+   "longNotional": 91094703.8415,
+   "shortNotional": 3011004.4731,
+   "totalNotional": 94105708.3146,
    "score": 94
   },
   {
    "coin": "XRP",
-   "long": 1,
-   "short": 2,
-   "longNotional": 2996031.4532,
-   "shortNotional": 2485538.8287,
-   "totalNotional": 5481570.2819,
-   "score": 9
+   "long": 2,
+   "short": 3,
+   "longNotional": 3189451.2316,
+   "shortNotional": 2604972.9136,
+   "totalNotional": 5794424.1452,
+   "score": 10
   },
   {
    "coin": "AVAX",
    "long": 1,
    "short": 1,
-   "longNotional": 3384197.5778,
-   "shortNotional": 1909552.5078,
-   "totalNotional": 5293750.0856,
-   "score": 28
+   "longNotional": 2784552.5838,
+   "shortNotional": 1880214.36954,
+   "totalNotional": 4664766.9533400005,
+   "score": 19
   },
   {
    "coin": "TAO",
-   "long": 3,
+   "long": 2,
    "short": 0,
-   "longNotional": 4848286.382,
+   "longNotional": 3507290.0814,
    "shortNotional": 0.0,
-   "totalNotional": 4848286.382,
+   "totalNotional": 3507290.0814,
    "score": 100
   },
   {
    "coin": "BNB",
-   "long": 1,
+   "long": 0,
    "short": 1,
-   "longNotional": 546707.8031,
-   "shortNotional": 2099716.57471,
-   "totalNotional": 2646424.37781,
-   "score": -59
+   "longNotional": 0.0,
+   "shortNotional": 2117445.97401,
+   "totalNotional": 2117445.97401,
+   "score": -100
   },
   {
    "coin": "DOGE",
    "long": 1,
    "short": 0,
-   "longNotional": 1427006.2176,
+   "longNotional": 1513828.7728,
    "shortNotional": 0.0,
-   "totalNotional": 1427006.2176,
+   "totalNotional": 1513828.7728,
    "score": 100
   },
   {
